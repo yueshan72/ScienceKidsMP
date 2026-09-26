@@ -1,0 +1,7 @@
+{
+  "name": "progress",
+  "version": "0.1.0",
+  "description": "闯关进度（接口契约 §3.2）",
+  "main": "index.js",
+  "dependencies": {}
+}

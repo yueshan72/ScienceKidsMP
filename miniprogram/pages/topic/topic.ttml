@@ -1,0 +1,36 @@
+<!-- pages/topic/topic.ttml —— 主题内容页（太空） -->
+<view class="container">
+
+  <!-- 短视频列表（《需求文档》4.2） -->
+  <view class="section-title">科普视频</view>
+  <view tt:if="{{videoList.length === 0}}" class="hint">
+    短视频列表待实现（S2）—— 支持点赞 / 收藏 / 全屏播放
+  </view>
+  <view tt:else>
+    <view class="video-item" tt:for="{{videoList}}" tt:key="_id"
+          data-id="{{item._id}}" bindtap="onTapVideo">
+      <text>{{item.title}}</text>
+      <text class="ad-mark">推广</text>
+    </view>
+  </view>
+
+  <!-- 互动实验闯关（《需求文档》4.3，核心留存） -->
+  <view class="section-title">动手试一试</view>
+  <view tt:if="{{levelList.length === 0}}" class="hint">
+    关卡列表待实现（S2）—— 太空主题 5 关：火箭发射 / 陨石坑 / 行星排排队 / 看星座 / 黑洞引力
+  </view>
+  <view tt:else>
+    <view class="level-item" tt:for="{{levelList}}" tt:key="_id"
+          data-id="{{item._id}}" bindtap="onTapLevel">
+      <text>{{item.order}}. {{item.name}}</text>
+      <text class="level-point">{{item.sciencePoint}}</text>
+    </view>
+  </view>
+
+  <!-- 商品推荐（《需求文档》4.4） -->
+  <view class="section-title">相关好物</view>
+  <view tt:if="{{productList.length === 0}}" class="hint">
+    商品位待实现（S2）—— 接精选联盟，每处 1-2 个商品
+  </view>
+
+</view>

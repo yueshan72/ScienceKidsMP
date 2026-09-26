@@ -1,0 +1,49 @@
+/* pages/level/level.ttss */
+
+.hint {
+  color: #8a93b8;
+  font-size: 24rpx;
+  padding: 60rpx 0;
+  text-align: center;
+}
+
+.level-name {
+  font-size: 40rpx;
+  font-weight: bold;
+}
+
+.science-point {
+  font-size: 24rpx;
+  color: #8a93b8;
+  margin: 12rpx 0 32rpx;
+}
+
+.stage {
+  height: 640rpx;
+  background-color: #141a33;
+  border-radius: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reward {
+  margin-top: 32rpx;
+  text-align: center;
+  color: #ffd166;
+  font-size: 32rpx;
+}
+
+.btn {
+  margin-top: 32rpx;
+  background-color: #4ea1ff;
+  color: #06122b;
+  border-radius: 999rpx;
+  font-weight: bold;
+}
+
+.badge {
+  margin-top: 24rpx;
+  text-align: center;
+  color: #4ea1ff;
+}

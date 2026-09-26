@@ -1,0 +1,19 @@
+# 统一换行符：仓库内存 LF，检出时按平台转换。
+# 不加这个，Windows 与 Mac 各推一次就会产生整文件级的假 diff。
+* text=auto eol=lf
+
+# 二进制文件不要做换行转换，否则文件会被改坏
+*.pdf  binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.webp binary
+*.mp4  binary
+*.mp3  binary
+*.psd  binary
+*.sketch binary
+*.fig  binary
+*.ttf  binary
+*.woff binary
+*.woff2 binary

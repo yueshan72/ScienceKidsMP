@@ -1,0 +1,38 @@
+/* pages/mine/mine.ttss */
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #141a33;
+  border-radius: 16rpx;
+  padding: 28rpx 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.value {
+  color: #8a93b8;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  margin: 40rpx 0 20rpx;
+}
+
+.hint {
+  color: #8a93b8;
+  font-size: 24rpx;
+  padding: 32rpx 0;
+  text-align: center;
+  background-color: #141a33;
+  border-radius: 16rpx;
+}
+
+.btn {
+  margin-top: 20rpx;
+  background-color: #4ea1ff;
+  color: #06122b;
+  border-radius: 999rpx;
+  font-weight: bold;
+}

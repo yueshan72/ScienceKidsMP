@@ -1,0 +1,7 @@
+{
+  "name": "checkin",
+  "version": "0.1.0",
+  "description": "打卡 / 连续天数（接口契约 §3.3）",
+  "main": "index.js",
+  "dependencies": {}
+}

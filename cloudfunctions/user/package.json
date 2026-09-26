@@ -1,0 +1,7 @@
+{
+  "name": "user",
+  "version": "0.1.0",
+  "description": "登录 / 年龄标签（接口契约 §3.1）",
+  "main": "index.js",
+  "dependencies": {}
+}

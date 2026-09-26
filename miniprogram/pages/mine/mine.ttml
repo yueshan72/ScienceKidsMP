@@ -1,0 +1,28 @@
+<!-- pages/mine/mine.ttml —— 我的 -->
+<view class="container">
+
+  <!-- 年龄设置（《需求文档》4.1，可随时修改） -->
+  <view class="row" bindtap="onOpenAgePicker">
+    <text>年龄段</text>
+    <text class="value">{{ageGroup || '未选择'}}</text>
+  </view>
+
+  <!-- 闯关进度 / 徽章（《需求文档》4.3） -->
+  <view class="section-title">闯关进度</view>
+  <view tt:if="{{progress.length === 0}}" class="hint">
+    进度待实现（S2）—— 全部通关得太空徽章
+  </view>
+
+  <!-- 打卡记录（《需求文档》4.3 连续打卡激励留存） -->
+  <view class="section-title">打卡</view>
+  <view class="row">
+    <text>连续打卡</text>
+    <text class="value">{{streak}} 天</text>
+  </view>
+  <button class="btn" bindtap="onCheckin">今日打卡</button>
+
+  <!-- 收藏（《需求文档》4.2 收藏） -->
+  <view class="section-title">我的收藏</view>
+  <view tt:if="{{favorites.length === 0}}" class="hint">收藏待实现（S2）</view>
+
+</view>

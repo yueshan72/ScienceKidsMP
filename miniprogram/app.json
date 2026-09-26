@@ -1,0 +1,30 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/topic/topic",
+    "pages/level/level",
+    "pages/mine/mine"
+  ],
+  "window": {
+    "navigationBarTitleText": "小宇宙科普",
+    "navigationBarBackgroundColor": "#0b1026",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#0b1026"
+  },
+  "tabBar": {
+    "color": "#8a93b8",
+    "selectedColor": "#4ea1ff",
+    "backgroundColor": "#0b1026",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/mine/mine",
+        "text": "我的"
+      }
+    ]
+  }
+}

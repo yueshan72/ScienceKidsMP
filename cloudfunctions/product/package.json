@@ -1,0 +1,7 @@
+{
+  "name": "product",
+  "version": "0.1.0",
+  "description": "精选联盟商品（接口契约 §3.4）",
+  "main": "index.js",
+  "dependencies": {}
+}

@@ -1,0 +1,30 @@
+<!-- pages/level/level.ttml —— 闯关详情页（互动实验） -->
+<view class="container">
+
+  <view tt:if="{{!level}}" class="hint">
+    关卡定义待实现（S2）—— 由 levels 集合按 levelId 读取，见 接口契约 §4
+  </view>
+
+  <block tt:else>
+    <view class="level-name">{{level.name}}</view>
+    <view class="science-point">科普点：{{level.sciencePoint}}</view>
+
+    <!--
+      互动实验区：交互用 Canvas / 交互组件实现（《开发计划书》第 3 节）
+      5 类交互：点击点火 / 拖拽陨石 / 拖拽行星 / 点击星星连线 / 拖动小球
+    -->
+    <view class="stage">
+      <text class="todo-badge">互动实验区待实现</text>
+    </view>
+
+    <view class="reward" tt:if="{{status === 'done'}}">
+      <text>已通关 ★{{stars}}</text>
+    </view>
+    <button tt:else class="btn" bindtap="onComplete">完成实验</button>
+
+    <view class="badge" tt:if="{{newBadge}}">
+      <text>获得徽章：{{newBadge}}</text>
+    </view>
+  </block>
+
+</view>

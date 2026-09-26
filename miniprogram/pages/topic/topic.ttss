@@ -1,0 +1,39 @@
+/* pages/topic/topic.ttss */
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin: 40rpx 0 20rpx;
+}
+
+.section-title:first-child {
+  margin-top: 0;
+}
+
+.hint {
+  color: #8a93b8;
+  font-size: 24rpx;
+  padding: 32rpx 0;
+  text-align: center;
+  background-color: #141a33;
+  border-radius: 16rpx;
+}
+
+.video-item,
+.level-item {
+  background-color: #141a33;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+}
+
+.level-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.level-point {
+  font-size: 22rpx;
+  color: #8a93b8;
+}
