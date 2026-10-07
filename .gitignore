@@ -24,9 +24,11 @@ build/
 tmp/
 .cache/
 
-# ---- 本地文档工具（仅本机生成 Word 用，不入库）----
+# ---- 本地文档工具（仅本机生成 Word / PDF 用，不入库）----
 build_docx.py
+build_pdf.py
 *.docx
+*.pdf
 
 # ---- 设计稿源文件（体积大，按需放开）----
 prototypes/**/*.psd
