@@ -11,6 +11,7 @@ venv/
 *.swo
 .DS_Store
 Thumbs.db
+__MACOSX/          # macOS 压缩包解出来的垃圾目录（从网上下模板时常见）
 
 # ---- 抖音开发者工具产物 ----
 miniprogram/dist/

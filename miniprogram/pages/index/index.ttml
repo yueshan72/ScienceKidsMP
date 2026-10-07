@@ -1,47 +1,70 @@
-<!-- pages/index/index.ttml —— 首页 -->
-<view class="container">
+<!-- pages/index/index.ttml —— 首页
+     从 prototypes/index.html 搬运而来。转换规则见 prototypes/README.md：
+       data-tap="x"      → bindtap="onX"
+       class="is-hidden" → tt:if="{{...}}"
+       JS 拼 DOM          → tt:for
+     依据：《需求文档》4.1 首页（年龄段选择 / 主题入口 / 内容流）
+-->
 
-  <!-- 分龄入口：首次进入弹窗选择（《需求文档》4.1） -->
-  <view class="age-bar" tt:if="{{ageGroup}}">
-    <text>当前年龄段：{{ageGroup}}</text>
-    <text class="link" bindtap="onOpenAgePicker">修改</text>
-  </view>
+<view class="page theme-{{theme}}">
+  <view class="container">
 
-  <!-- 主题入口：太空主题大图（《需求文档》4.1） -->
-  <view class="topic-card" bindtap="onTapTopic">
-    <text class="topic-title">太空 / 宇宙</text>
-    <text class="topic-sub">去动手试一试</text>
-    <text class="todo-badge">待接内容</text>
-  </view>
+    <!-- 年龄段条：当前年龄段 + 修改入口（可随时修改） -->
+    <view class="age-bar">
+      <text>当前年龄段：<text>{{ageLabel}}</text></text>
+      <text class="link" bindtap="onOpenAgePicker">修改</text>
+    </view>
 
-  <!-- 内容流：按年龄段推荐的短视频卡片列表（《需求文档》4.1 / 4.2） -->
-  <view class="section-title">为你推荐</view>
-  <view tt:if="{{loading}}" class="hint">加载中…</view>
-  <view tt:elif="{{contentList.length === 0}}" class="hint">
-    内容流待实现（S2）—— 见 接口契约 §3 与《开发计划书》S2
-  </view>
-  <view tt:else>
-    <view class="video-card" tt:for="{{contentList}}" tt:key="_id">
-      <text>{{item.title}}</text>
-      <!-- 视频卡片下方关联商品位，需显著标识（《需求文档》9.1 广告合规） -->
+    <!-- 主题入口 -->
+    <view class="topic-card" bindtap="onTapTopic">
+      <text class="topic-title">🚀 太空 / 宇宙</text>
+      <text class="topic-sub">去动手试一试</text>
+    </view>
+
+    <!-- 内容流：按年龄段推荐（《需求文档》4.1 / 4.2） -->
+    <view class="section-title">为你推荐</view>
+    <view tt:if="{{contentList.length === 0}}" class="hint">
+      这个年龄段的内容还在做，先看看别的吧～
+    </view>
+    <block tt:else>
+      <view class="video-card" tt:for="{{contentList}}" tt:key="_id">
+        <text class="video-title">{{item.title}}</text>
+
+        <!-- 《需求文档》§9.2：争议性话题须标注「科学假设 / 未定论」 -->
+        <view tt:if="{{item.disputed}}" class="disclaimer">
+          ⚠️ 这一集涉及科学假设，尚无定论，和孩子一起讨论看看。
+        </view>
+
+        <view class="video-foot">
+          <text>{{item.durationText}}</text>
+          <!-- 《需求文档》§9.1：带货内容必须显著标识 -->
+          <text tt:if="{{item.adProduct}}" class="ad-mark">推广</text>
+        </view>
+      </view>
+    </block>
+
+    <!-- 商品位：V1.0 不接精选联盟，静态占位。
+         「推广」标识必须保留（§9.1 硬性 + 《接口契约》§3.4 范围决策）。 -->
+    <view class="section-title">相关好物</view>
+    <view class="shop-card" tt:for="{{shopList}}" tt:key="_id">
+      <text class="shop-name">{{item.name}}</text>
       <text class="ad-mark">推广</text>
+    </view>
+
+  </view>
+
+  <!-- 年龄段选择弹窗（《需求文档》4.1：首次进入必须选）
+       放在 .page 内部 —— 主题 class 挂在 .page 上，所以它能读到主题变量。 -->
+  <view class="mask" tt:if="{{showAgePicker}}">
+    <view class="picker">
+      <view class="picker-title">选择年龄段</view>
+      <view class="picker-tip">我们会按年龄推荐合适难度的内容，随时可以修改</view>
+      <view class="picker-item"
+            tt:for="{{ageOptions}}"
+            tt:key="value"
+            data-age="{{item.value}}"
+            bindtap="onPickAge">{{item.label}}</view>
     </view>
   </view>
 
-</view>
-
-<!-- 年龄段选择弹窗 -->
-<view class="mask" tt:if="{{showAgePicker}}">
-  <view class="picker">
-    <view class="picker-title">选择年龄段</view>
-    <view class="picker-tip">我们会按年龄推荐合适难度的内容</view>
-    <view
-      class="picker-item"
-      tt:for="{{ageOptions}}"
-      tt:key="*this"
-      data-age="{{item}}"
-      bindtap="onPickAge"
-    >{{item}}</view>
-    <view class="picker-cancel" tt:if="{{ageGroup}}" bindtap="onCloseAgePicker">取消</view>
-  </view>
 </view>

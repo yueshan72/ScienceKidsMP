@@ -1,16 +1,1 @@
-{
-  "appid": "REPLACE_WITH_YOUR_APPID",
-  "projectname": "ScienceKidsMP",
-  "miniprogramRoot": "./",
-  "cloudfunctionRoot": "../cloudfunctions/",
-  "setting": {
-    "urlCheck": true,
-    "es6": true,
-    "enhance": true,
-    "postcss": true,
-    "minified": true
-  },
-  "compileType": "miniprogram",
-  "libVersion": "latest",
-  "description": "儿童科普小程序「小宇宙科普」抖音端"
-}
+{"setting":{"urlCheck":true,"es6":true,"postcss":true,"minified":true,"newFeature":true,"autoCompile":true,"compileHotReLoad":true,"nativeCompile":true},"appid":"testAppId","projectname":"ScienceKidsMP","douyinProjectType":"native"}

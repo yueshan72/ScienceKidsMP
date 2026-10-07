@@ -1,0 +1,116 @@
+/* tokens.css —— 设计 token（本项目第一套）
+ *
+ * 背景：现有 5 个 .ttss 里所有色值、字号、圆角都是硬编码的，且同名类在
+ *       不同文件里已经漂移（例如 .section-title 有 32rpx 和 30rpx 两个版本）。
+ *       规范统一从这一份开始。
+ *
+ * 单位策略（重要）：
+ *       本原型里 1px 严格等于小程序里的 1rpx。手机外框按 750px 逻辑宽渲染
+ *       （缩放细节见 app.css 的原型专用段）。
+ *       转 .ttss 时只需把 px 换成 rpx，【数字一个都不用动】，因此不可能算错。
+ *
+ * 分层：
+ *       :root       —— 与配色无关的尺寸、字号、动效。两套主题共用。
+ *       .theme-warm —— 3-6 岁
+ *       .theme-cool —— 9-12 岁
+ *       两套主题【布局完全相同】，差异只在下面这些 token 上。
+ */
+
+:root {
+  /* ---- 间距（基数 8px）---- */
+  --sp-1: 8px;
+  --sp-2: 16px;
+  --sp-3: 24px;
+  --sp-4: 32px;
+  --sp-5: 40px;
+  --sp-6: 48px;
+  --sp-8: 64px;
+
+  /* ---- 圆角（不随主题变的那几档）---- */
+  --radius-sm: 12px;
+  --radius-pill: 999px;
+
+  /* ---- 字号阶（沿用现有 .ttss 的取值，便于对照）---- */
+  --fs-xs: 20px;
+  --fs-sm: 24px;
+  --fs-base: 28px;
+  --fs-lg: 32px;
+  --fs-xl: 40px;
+  --fs-2xl: 44px;
+
+  /* ---- 触控热区下限 ----
+   * ⚠️ 这是本原型的【设计提案】，不是需求文档的要求。
+   *    《需求文档》对配色、字号、触控尺寸零规格（已全篇确认无任何一条）。
+   *    88px = 44pt，是移动端通用的最小可点区域。儿童手指精度更低，
+   *    建议不低于此值。需评审确认后才能写进契约。 */
+  --touch-min: 88px;
+
+  /* ---- 动效 ---- */
+  --dur-fast: .18s;
+  --dur-base: .3s;
+  --ease: cubic-bezier(.2, .7, .3, 1);
+
+  /* ---- 原型外壳专用（转 .ttss 时整组删除）----
+   * 演示条是原型独有的东西，这些颜色与产品主题无关，所以不进主题层。 */
+  --c-proto-bg: #1A1A1F;
+  --c-proto-panel: #2A2A33;
+  --c-proto-text: #C9C9D1;
+  --c-proto-line: #3D3D48;
+  --c-proto-ink: #FFFFFF;
+  --c-proto-btn: #3A3A46;
+  --c-proto-btn-hover: #474754;
+  --c-proto-on: #4EA1FF;
+  --c-proto-on-ink: #06122B;
+  --c-proto-shadow: rgba(0, 0, 0, .5);
+}
+
+/* ============ 主题 A：3-6 岁 · 暖白明亮 ============
+ * 大圆角、大字号、暖色、柔和阴影。低龄儿童对暖色和大色块反应更好，
+ * 家长看着也更有「儿童应用」的观感。 */
+.theme-warm {
+  --c-bg: #FFF8EE;
+  --c-surface: #FFFFFF;
+  --c-surface-2: #FFF1DE;
+  --c-text: #3A2E22;
+  --c-text-weak: #8A7A66;
+  --c-accent: #FF8A3D;
+  --c-accent-ink: #FFFFFF;
+  --c-gold: #FFC53D;
+  --c-warn: #E5544B;
+  --c-line: #F0E2CE;
+  --c-mask: rgba(58, 46, 34, .45);
+  --shadow-card: 0 6px 20px rgba(180, 140, 80, .16);
+
+  --radius-card: 32px;
+  --fs-body: 32px;
+
+  /* 关卡场景底色 */
+  --c-scene-default: linear-gradient(180deg, #E8F1FF, #FFF3E0);
+  --c-scene-rocket: linear-gradient(180deg, #DCEBFF, #FFE9CC);
+  --c-scene-meteor: linear-gradient(180deg, #EDEDF2, #D6D6DF);
+}
+
+/* ============ 主题 B：9-12 岁 · 深空紧凑 ============
+ * 小圆角、小字号、冷色、深阴影。高年级信息密度更高，观感更「正经」。 */
+.theme-cool {
+  --c-bg: #0B1026;
+  --c-surface: #141A33;
+  --c-surface-2: #1B2444;
+  --c-text: #E8ECF8;
+  --c-text-weak: #8A93B8;
+  --c-accent: #4EA1FF;
+  --c-accent-ink: #06122B;
+  --c-gold: #FFD166;
+  --c-warn: #FF6B6B;
+  --c-line: #26305A;
+  --c-mask: rgba(0, 0, 0, .6);
+  --shadow-card: 0 6px 20px rgba(0, 0, 0, .45);
+
+  --radius-card: 16px;
+  --fs-body: 28px;
+
+  /* 关卡场景底色 */
+  --c-scene-default: linear-gradient(180deg, #0A1230, #16204A);
+  --c-scene-rocket: linear-gradient(180deg, #0A1230, #1B2A55);
+  --c-scene-meteor: linear-gradient(180deg, #17171D, #33333D);
+}

@@ -1,0 +1,393 @@
+/* pages.css —— 页面样式（首页 + 关卡页）
+ *
+ * 转 .ttss 时按页拆开：
+ *   首页段 → pages/index/index.ttss
+ *   关卡段 → pages/level/level.ttss
+ *
+ * ⚠️ 本文件不得出现硬编码色值，颜色一律走 tokens.css。
+ *    这样两套主题才能共用同一份布局。
+ */
+
+/* ==================== 首页（→ pages/index/index.ttss）==================== */
+
+.age-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--touch-min);
+  padding: 0 var(--sp-3);
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
+}
+
+/* 主题入口大卡。现有 index.ttss 里是纯 CSS 渐变，没有 <image>。 */
+.topic-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 280px;
+  padding: var(--sp-6) var(--sp-4);
+  margin-top: var(--sp-2);
+  background: linear-gradient(135deg, var(--c-surface-2), var(--c-surface));
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+}
+
+.topic-title {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+}
+
+.topic-sub {
+  margin-top: var(--sp-2);
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
+}
+
+.video-card {
+  display: block;
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--c-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.video-title {
+  display: block;
+  font-size: var(--fs-base);
+  font-weight: 700;
+}
+
+.video-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--sp-2);
+  color: var(--c-text-weak);
+  font-size: var(--fs-xs);
+}
+
+/* 商品位。V1.0 不接精选联盟，取静态占位数据，
+ * 但「推广」标识必须保留（§9.1 硬性 + 《接口契约》§3.4 范围决策）。 */
+.shop-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--c-surface);
+  border-radius: var(--radius-card);
+}
+
+.shop-name {
+  font-size: var(--fs-sm);
+  color: var(--c-text-weak);
+}
+
+/* ---- 年龄段选择弹窗（《需求文档》4.1：首次进入必选）---- */
+
+.mask {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
+  background: var(--c-mask);
+  z-index: 10;
+}
+
+.picker {
+  width: 100%;
+  padding: var(--sp-6) var(--sp-4);
+  background: var(--c-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.picker-title {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  text-align: center;
+}
+
+.picker-tip {
+  margin-top: var(--sp-2);
+  margin-bottom: var(--sp-5);
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+.picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 112px;      /* 分龄选择是首次进入的关键动作，热区给得更大 */
+  margin-bottom: var(--sp-3);
+  background: var(--c-surface-2);
+  border: 2px solid var(--c-line);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-lg);
+  cursor: pointer;
+}
+
+.picker-item:hover { border-color: var(--c-accent); }
+
+/* ==================== 主题页（→ pages/topic/topic.ttss）====================
+ * 这一页【原型阶段从未设计过】，是 2026-10-07 补做的。
+ * 它是首页与关卡页之间的枢纽。 */
+
+.topic-head {
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-6) var(--sp-4);
+  background: var(--c-surface-2);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.topic-head-title {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+}
+
+.topic-head-intro {
+  margin-top: var(--sp-2);
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
+}
+
+/* 区块小注，如「已完成 1 / 2」 */
+.side-note {
+  margin-bottom: var(--sp-3);
+  color: var(--c-text-weak);
+  font-size: var(--fs-xs);
+}
+
+/* ---- 关卡列表项 ---- */
+
+.level-item {
+  display: flex;
+  align-items: center;
+  min-height: 120px;      /* 关卡是核心动作，热区给足 */
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--c-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+}
+
+/* 已通关的关卡降低存在感，把注意力留给没做的 */
+.level-item.is-done { opacity: .62; }
+
+.level-order {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-right: var(--sp-3);
+  background: var(--c-surface-2);
+  border-radius: var(--radius-pill);
+  color: var(--c-accent);
+  font-size: var(--fs-base);
+  font-weight: 700;
+}
+
+.level-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.level-name {
+  font-size: var(--fs-base);
+  font-weight: 700;
+}
+
+.level-point {
+  margin-top: 4px;
+  color: var(--c-text-weak);
+  font-size: var(--fs-xs);
+}
+
+.level-state {
+  color: var(--c-accent);
+  font-size: var(--fs-xs);
+}
+
+.level-item.is-done .level-state { color: var(--c-text-weak); }
+
+/* ==================== 关卡页（→ pages/level/level.ttss）==================== */
+
+.level-name {
+  font-size: var(--fs-xl);
+  font-weight: 700;
+}
+
+.science-point {
+  margin-top: var(--sp-1);
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
+}
+
+.level-prompt {
+  margin: var(--sp-3) 0;
+  padding: var(--sp-3);
+  background: var(--c-surface-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-base);
+}
+
+/* ---- 互动舞台：interactionConfig 解释器的宿主 ----
+ * 现有 level.ttss 已预留 .stage（640rpx 高），沿用。 */
+.stage {
+  position: relative;
+  height: 640px;
+  margin-bottom: var(--sp-4);
+  background: var(--c-scene-default);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.stage[data-scene="rocket"] { background: var(--c-scene-rocket); }
+.stage[data-scene="meteor"] { background: var(--c-scene-meteor); }
+
+/* 场景装饰物。位置与图标来自关卡数据的 scene.deco，纯展示，
+ * 由页面渲染而非引擎——引擎只认 interactionConfig。 */
+.stage-deco {
+  position: absolute;
+  /* 旋转角度来自关卡数据的 deco.rotate（emoji 自带的朝向未必是你想要的方向，
+     例如 🚀 默认朝右上，要让它竖直向上就得转 -45°） */
+  transform: translate(-50%, -50%) rotate(var(--deco-rotate, 0deg));
+  font-size: 128px;
+  line-height: 1;
+  pointer-events: none;    /* 装饰物不可点，避免挡住目标 */
+}
+
+.stage-deco[data-anim="launch"] { transition: none; }
+
+@keyframes deco-launch {
+  from {
+    transform: translate(-50%, -50%) rotate(var(--deco-rotate, 0deg)) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -560px) rotate(var(--deco-rotate, 0deg)) scale(.35);
+    opacity: 0;
+  }
+}
+
+.stage.is-success .stage-deco[data-anim="launch"] {
+  animation: deco-launch 1.2s var(--ease) forwards;
+}
+
+/* ---- 可点目标 ----
+ * 坐标由引擎写成 left/top 百分比，且是【中心点】语义（缺口 G2 的决议），
+ * 所以这里用 translate(-50%,-50%) 把元素中心对到坐标上。 */
+.stage-target {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  padding: var(--sp-2) var(--sp-3);
+  transform: translate(-50%, -50%);
+  background: var(--c-surface);
+  border: 3px solid var(--c-line);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-card);
+  font-size: var(--fs-base);
+  white-space: nowrap;     /* 目标靠近舞台边缘时，标签不许折行 */
+  cursor: pointer;
+}
+
+/* 已点中的目标置灰且不可再点——缺口 G4 的决议：
+ * 同一目标重复点击不重复计数。 */
+.stage-target.is-hit {
+  opacity: .45;
+  pointer-events: none;
+}
+
+.target-icon {
+  font-size: 44px;
+  line-height: 1;
+}
+
+.target-label {
+  margin-left: var(--sp-1);
+}
+
+@keyframes target-shake {
+  0%, 100% { transform: translate(-50%, -50%); }
+  25%      { transform: translate(-58%, -50%); }
+  75%      { transform: translate(-42%, -50%); }
+}
+
+.stage-target.is-wrong {
+  border-color: var(--c-warn);
+  animation: target-shake .32s var(--ease);
+}
+
+/* 失败提示。- 缺口 G3 的决议：宽容模式——只做 1 秒瞬时提示，
+ * 随后自动回到可玩态，不清零、不扣进度。 */
+.stage-hint {
+  position: absolute;
+  left: 50%;
+  bottom: var(--sp-4);
+  transform: translateX(-50%);
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--c-surface);
+  border: 3px solid var(--c-warn);
+  border-radius: var(--radius-pill);
+  color: var(--c-warn);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+
+/* ---- 奖励区 ---- */
+
+.reward {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--sp-4);
+  background: var(--c-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.reward-label {
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
+}
+
+.reward-stars {
+  margin-top: var(--sp-2);
+  color: var(--c-gold);
+  font-size: 64px;
+  line-height: 1.2;
+  letter-spacing: 8px;
+}
+
+.badge {
+  margin-top: var(--sp-3);
+  padding: var(--sp-3);
+  background: var(--c-surface-2);
+  border: 2px solid var(--c-gold);
+  border-radius: var(--radius-card);
+  text-align: center;
+  font-size: var(--fs-sm);
+}
+
+.level-actions {
+  margin-top: var(--sp-4);
+}

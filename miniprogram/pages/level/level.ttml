@@ -1,30 +1,78 @@
-<!-- pages/level/level.ttml —— 闯关详情页（互动实验） -->
-<view class="container">
+<!-- pages/level/level.ttml —— 闯关详情页（互动实验）
+     从 prototypes/level.html 搬运。这是项目里最复杂的一个页面。
+     依据：《需求文档》4.3 互动实验闯关（核心留存）
 
-  <view tt:if="{{!level}}" class="hint">
-    关卡定义待实现（S2）—— 由 levels 集合按 levelId 读取，见 接口契约 §4
+     与原型的两处适配：
+       ① 原型用 [data-anim="launch"] / [data-scene="rocket"] 属性选择器；
+          TTSS 对属性选择器的支持没把握，改用 class 驱动（anim-xxx / scene-xxx）。
+       ② 装饰物的旋转拆成两层：外层管定位、内层管旋转。
+          否则旋转会和升空动画的 transform 互相覆盖。
+-->
+
+<view class="page theme-{{theme}}">
+  <view class="container">
+
+    <view tt:if="{{error}}" class="hint">{{error}}</view>
+
+    <block tt:else>
+      <!-- 关卡标题 -->
+      <view class="level-name">{{level.name}}</view>
+      <view class="science-point">科普点：{{level.sciencePoint}}</view>
+
+      <!-- 引导语：来自 interactionConfig.prompt -->
+      <view class="level-prompt">{{prompt}}</view>
+
+      <!--
+        互动舞台：interactionConfig 解释器的宿主。
+        舞台内的一切（装饰、目标、提示）都由页面按【关卡数据】渲染 ——
+        引擎不认识任何具体关卡。
+      -->
+      <view class="stage scene-{{sceneKey}} {{stageClass}}">
+
+        <!-- 场景装饰物。纯展示，不可点。 -->
+        <view class="stage-deco anim-{{item.anim}}"
+              tt:for="{{deco}}"
+              tt:key="id"
+              style="{{item.wrapStyle}}">
+          <view class="stage-deco-inner" style="{{item.rotStyle}}">{{item.icon}}</view>
+        </view>
+
+        <!-- 可点目标。坐标由引擎转成百分比字符串，中心点语义。 -->
+        <view class="stage-target {{item.hit ? 'is-hit' : ''}} {{item.wrong ? 'is-wrong' : ''}}"
+              tt:for="{{targets}}"
+              tt:key="id"
+              data-id="{{item.id}}"
+              style="{{item.styleStr}}"
+              bindtap="onTapTarget">
+          <text tt:if="{{item.icon}}" class="target-icon">{{item.icon}}</text>
+          <text class="target-label">{{item.label}}</text>
+        </view>
+
+        <!-- 失败提示（缺口 G3：1 秒瞬时提示，随后自动消失） -->
+        <view tt:if="{{showHint}}" class="stage-hint">{{hintText}}</view>
+
+      </view>
+
+      <!-- 通关奖励。星级由「云函数」判定，前端只负责展示。
+           《接口契约》§3.2：奖励发放必须走云函数，前端不可信。 -->
+      <view tt:if="{{reward}}" class="reward">
+        <text class="reward-label">已通关</text>
+        <text class="reward-stars">{{reward.starsText}}</text>
+      </view>
+
+      <view tt:if="{{showBadge}}" class="badge">🏅 获得徽章：太空探索者</view>
+
+      <!--
+        注意：老骨架这里是一个手动的「完成实验」按钮，它与契约
+        「不通关不给星」冲突（缺口 G8）—— 前端可绕过交互直接调 complete 拿星，
+        而【没有任何互动，点一下就通关】。
+        已改为「再试一次」，与交互状态绑定。
+      -->
+      <view tt:if="{{reward}}" class="level-actions">
+        <button class="btn" bindtap="onReset">再试一次</button>
+      </view>
+
+    </block>
+
   </view>
-
-  <block tt:else>
-    <view class="level-name">{{level.name}}</view>
-    <view class="science-point">科普点：{{level.sciencePoint}}</view>
-
-    <!--
-      互动实验区：交互用 Canvas / 交互组件实现（《开发计划书》第 3 节）
-      5 类交互：点击点火 / 拖拽陨石 / 拖拽行星 / 点击星星连线 / 拖动小球
-    -->
-    <view class="stage">
-      <text class="todo-badge">互动实验区待实现</text>
-    </view>
-
-    <view class="reward" tt:if="{{status === 'done'}}">
-      <text>已通关 ★{{stars}}</text>
-    </view>
-    <button tt:else class="btn" bindtap="onComplete">完成实验</button>
-
-    <view class="badge" tt:if="{{newBadge}}">
-      <text>获得徽章：{{newBadge}}</text>
-    </view>
-  </block>
-
 </view>

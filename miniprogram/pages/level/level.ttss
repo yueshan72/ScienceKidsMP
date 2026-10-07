@@ -1,49 +1,169 @@
-/* pages/level/level.ttss */
-
-.hint {
-  color: #8a93b8;
-  font-size: 24rpx;
-  padding: 60rpx 0;
-  text-align: center;
-}
+/* pages/level/level.ttss —— 闯关详情页样式
+ * 从 prototypes/css/pages.css 的「关卡页」段搬运，px → rpx（数字未变）。
+ * 颜色一律走 app.ttss 的 token，本文件不得出现硬编码色值。
+ */
 
 .level-name {
-  font-size: 40rpx;
-  font-weight: bold;
+  font-size: var(--fs-xl);
+  font-weight: 700;
 }
 
 .science-point {
-  font-size: 24rpx;
-  color: #8a93b8;
-  margin: 12rpx 0 32rpx;
+  margin-top: var(--sp-1);
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
 }
 
+.level-prompt {
+  margin: var(--sp-3) 0;
+  padding: var(--sp-3);
+  background-color: var(--c-surface-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-base);
+}
+
+/* ==================== 互动舞台 ==================== */
+
 .stage {
+  position: relative;
   height: 640rpx;
-  background-color: #141a33;
-  border-radius: 24rpx;
+  margin-bottom: var(--sp-4);
+  background-color: var(--c-surface);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+/* 场景底色。class 驱动而非属性选择器 —— TTSS 对 [data-*] 的支持没把握。 */
+.scene-rocket { background-color: var(--c-scene-rocket); }
+.scene-meteor { background-color: var(--c-scene-meteor); }
+
+/* 场景装饰物。外层只管定位，内层才旋转 —— 否则内层的 rotation
+   会和升空动画的 transform 互相覆盖。 */
+.stage-deco {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 128rpx;
+  line-height: 1;
+  pointer-events: none;    /* 装饰物不可点，避免挡住目标 */
+}
+
+.stage-deco-inner {
+  display: inline-block;
+}
+
+/* 通关时的升空动画。只作用于带 anim-launch 的装饰物。 */
+@keyframes deco-launch {
+  from {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -560rpx) scale(.35);
+    opacity: 0;
+  }
+}
+
+.stage.is-success .anim-launch {
+  animation: deco-launch 1.2s var(--ease) forwards;
+}
+
+/* ==================== 可点目标 ====================
+ * 坐标由引擎写成 left/top 百分比，且是【中心点】语义（缺口 G2 的决议），
+ * 所以这里用 translate(-50%,-50%) 把元素中心对到坐标上。 */
+
+.stage-target {
+  position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: var(--touch-min);
+  min-height: var(--touch-min);
+  padding: var(--sp-2) var(--sp-3);
+  transform: translate(-50%, -50%);
+  background-color: var(--c-surface);
+  border: 3rpx solid var(--c-line);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-card);
+  font-size: var(--fs-base);
+  white-space: nowrap;     /* 目标靠近舞台边缘时标签不许折行 */
 }
+
+.target-icon {
+  font-size: 44rpx;
+  line-height: 1;
+}
+
+.target-label {
+  margin-left: var(--sp-1);
+}
+
+/* 已点中的目标置灰且不可再点 —— 缺口 G4 的决议：
+   同一目标重复点击不重复计数。 */
+.stage-target.is-hit {
+  opacity: .45;
+}
+
+@keyframes target-shake {
+  0%, 100% { transform: translate(-50%, -50%); }
+  25%      { transform: translate(-58%, -50%); }
+  75%      { transform: translate(-42%, -50%); }
+}
+
+.stage-target.is-wrong {
+  border-color: var(--c-warn);
+  animation: target-shake .32s var(--ease);
+}
+
+/* 失败提示 —— 缺口 G3：宽容模式，仅 1 秒瞬时提示。 */
+.stage-hint {
+  position: absolute;
+  left: 50%;
+  bottom: var(--sp-4);
+  transform: translateX(-50%);
+  padding: var(--sp-2) var(--sp-4);
+  background-color: var(--c-surface);
+  border: 3rpx solid var(--c-warn);
+  border-radius: var(--radius-pill);
+  color: var(--c-warn);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+
+/* ==================== 奖励区 ==================== */
 
 .reward {
-  margin-top: 32rpx;
-  text-align: center;
-  color: #ffd166;
-  font-size: 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--sp-4);
+  background-color: var(--c-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
-.btn {
-  margin-top: 32rpx;
-  background-color: #4ea1ff;
-  color: #06122b;
-  border-radius: 999rpx;
-  font-weight: bold;
+.reward-label {
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
+}
+
+.reward-stars {
+  margin-top: var(--sp-2);
+  color: var(--c-gold);
+  font-size: 64rpx;
+  line-height: 1.2;
+  letter-spacing: 8rpx;
 }
 
 .badge {
-  margin-top: 24rpx;
+  margin-top: var(--sp-3);
+  padding: var(--sp-3);
+  background-color: var(--c-surface-2);
+  border: 2rpx solid var(--c-gold);
+  border-radius: var(--radius-card);
   text-align: center;
-  color: #4ea1ff;
+  font-size: var(--fs-sm);
+}
+
+.level-actions {
+  margin-top: var(--sp-4);
 }

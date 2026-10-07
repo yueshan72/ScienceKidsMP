@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>小宇宙科普 · 关卡（原型）</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="level">
+
+  <!-- 主题 class 挂在这一层（与首页一致），详见首页里的说明 -->
+  <div class="phone theme-cool" id="root">
+    <div class="phone-screen">
+      <view class="page" id="page">
+        <view class="container">
+
+          <!-- 关卡标题（《需求文档》4.3） -->
+          <view class="level-name" id="levelName">—</view>
+          <view class="science-point" id="sciencePoint">—</view>
+
+          <!-- 引导语：来自 interactionConfig.prompt -->
+          <view class="level-prompt" id="prompt">—</view>
+
+          <!--
+            互动舞台：interactionConfig 解释器的宿主。
+            现有 level.ttss 已预留 .stage（640rpx 高），沿用。
+            舞台内部的一切（目标、装饰）都由 JS 按关卡数据渲染。
+          -->
+          <view class="stage" id="stage"></view>
+
+          <!-- 通关奖励。星级由「云函数」判定，前端只负责展示
+               （《接口契约》3.2：奖励发放必须走云函数，前端不可信）。 -->
+          <view class="reward is-hidden" id="reward">
+            <text class="reward-label">已通关</text>
+            <text class="reward-stars" id="rewardStars"></text>
+          </view>
+
+          <view class="badge is-hidden" id="badge"></view>
+
+          <view class="level-actions">
+            <!--
+              现有 level.ttml 这里是一个手动的「完成实验」按钮，
+              它与契约「不通关不给星」直接冲突（缺口 G8）——
+              前端可绕过交互直接调 complete 拿星。原型已改为「再试一次」，
+              S2 落地时应同步修正 level.ttml。
+            -->
+            <button class="btn is-hidden" id="resetBtn" data-tap="reset">再试一次</button>
+          </view>
+
+        </view>
+      </view>
+    </div>
+  </div>
+
+  <!-- ===== 原型专用：演示条。转 .ttml 时整段删除 ===== -->
+  <view class="proto-bar">
+    <view class="proto-bar-title">原型演示条</view>
+    <text class="proto-btn" id="lvBtn1" data-proto="level" data-level="rocket-1">关卡：火箭发射</text>
+    <text class="proto-btn" id="lvBtn2" data-proto="level" data-level="meteor-2">关卡：陨石坑</text>
+    <text class="proto-btn" data-proto="age" data-age="3-6">分龄 3-6 · 暖</text>
+    <text class="proto-btn" data-proto="age" data-age="9-12">分龄 9-12 · 冷</text>
+    <text class="proto-btn" data-proto="reset">重置关卡</text>
+    <view class="proto-bar-hint">
+      两个关卡用【同一个】level.html、同一套 JS/CSS，差异只来自 js/data.js 里的 JSON。
+    </view>
+  </view>
+
+  <script src="js/data.js"></script>
+  <script src="js/interaction.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

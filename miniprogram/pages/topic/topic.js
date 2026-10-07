@@ -1,43 +1,94 @@
 // pages/topic/topic.js —— 主题内容页（太空）
 // 依据：《需求文档》4.2 短视频科普 / 4.3 互动实验闯关 / 4.4 电商带货
+//
+// 页面角色：首页与关卡页之间的枢纽。
 
 const app = getApp();
-const { call } = require('../../utils/request');
+const DEMO = require('../../utils/demo-data.js');
+const progress = require('../../utils/mock-progress.js');
+
+const AGE_THEME = { '3-6': 'warm', '6-9': 'warm', '9-12': 'cool' };
+const STORAGE_KEY = 'sci.ageGroup';
+
+const TOPIC_ID = 'space';
 
 Page({
   data: {
-    topic: null,
-    videoList: [],   // 短视频列表（《需求文档》4.2）
-    levelList: [],   // 关卡列表（《需求文档》4.3，太空主题 3-5 关）
-    productList: [], // 商品推荐（《需求文档》4.4）
-    loading: true,
+    theme: 'cool',
+    videoList: [],
+    levelList: [],
+    shopList: [],
+    doneCount: 0
   },
 
-  onLoad() {
-    this.fetchTopicData();
+  /* 用 onShow 而不是 onLoad：从关卡页返回时要刷新通关状态，
+     否则刚通关回来还显示「去试试」。 */
+  onShow() {
+    const age = app.globalData.ageGroup || this.restoreAge();
+    this.setData({ theme: AGE_THEME[age] || 'cool' });
+    this.refresh(age);
   },
 
-  fetchTopicData() {
-    // TODO(S2)：
-    //   - 视频列表走 contents 集合，按 ageGroup 过滤
-    //   - 关卡列表走 levels 集合，见 接口契约 §4
-    //   - 商品位走 product 云函数 listByLevel，见 接口契约 §3.4
-    this.setData({ loading: false });
+  refresh(age) {
+    // TODO(S3)：以下三块都改为云函数拉取，分龄过滤必须在云函数里做
+    //          （见《接口契约》§5「前端待对齐项」）。此处为临时实现。
+
+    const videoList = DEMO.contents
+      .filter(function (c) {
+        return c.topicId === TOPIC_ID
+          && c.type === 'video'
+          && (!age || c.ageGroup === age);
+      })
+      .map(function (c) {
+        return Object.assign({}, c, { durationText: fmtDuration(c.duration) });
+      });
+
+    /* 关卡列表：本主题的全部关卡。
+       注意 ageGroup 只是排序参考 —— 实验本身不分龄（同《需求文档》2 节：
+       V1.0 的分龄是内容难度分层，不做交互差异）。 */
+    const levels = Object.keys(DEMO.levels)
+      .map(function (k) { return DEMO.levels[k]; })
+      .filter(function (lv) { return lv.topicId === TOPIC_ID; })
+      .sort(function (a, b) { return a.order - b.order; });
+
+    const levelList = levels.map(function (lv) {
+      return {
+        _id: lv._id,
+        name: lv.name,
+        order: lv.order,
+        sciencePoint: lv.sciencePoint,
+        done: !!progress.get(lv._id)          // 已通关则显示状态
+      };
+    });
+
+    this.setData({
+      videoList: videoList,
+      levelList: levelList,
+      shopList: DEMO.shop,
+      doneCount: progress.doneCountOf(levels.map(function (lv) { return lv._id; }))
+    });
   },
 
-  onTapVideo(e) {
-    // TODO(S2)：进入播放页；视频末尾引导「去动手试一试」跳对应关卡（《需求文档》4.2）
-    console.log('play video', e.currentTarget.dataset.id);
-  },
+  /* ---------------- 事件 ---------------- */
 
   onTapLevel(e) {
     const levelId = e.currentTarget.dataset.id;
-    tt.navigateTo({ url: `/pages/level/level?levelId=${levelId}` });
+    tt.navigateTo({ url: '/pages/level/level?id=' + levelId });
   },
 
-  onTapProduct(e) {
-    // TODO(S2)：跳转抖音小程序购物车 / 精选联盟落地页（《需求文档》4.4）
-    // 注意：带货内容必须显著标识，不得诱导消费（《需求文档》9.1）
-    console.log('open product', e.currentTarget.dataset.id);
+  onTapVideo() {
+    /* 流程缺口（《接口契约》§8.2）：assets/ 里没有任何视频素材，
+       也没有播放页。这里刻意不做假动作 —— 与其弹个假提示，
+       不如什么都不发生，问题已登记在案。 */
+    // TODO(S4)：视频素材到位后，跳播放页
   },
+
+  restoreAge() {
+    try { return tt.getStorageSync(STORAGE_KEY) || null; } catch (e) { return null; }
+  }
 });
+
+/** 秒 → 1′35″ */
+function fmtDuration(sec) {
+  return Math.floor(sec / 60) + '′' + (sec % 60) + '″';
+}

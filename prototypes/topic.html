@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>小宇宙科普 · 主题页（原型）</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="topic">
+
+  <div class="phone theme-cool" id="root">
+    <div class="phone-screen">
+      <view class="page" id="page">
+        <view class="container">
+
+          <!-- 主题头部 -->
+          <view class="topic-head">
+            <text class="topic-head-title">🚀 太空 / 宇宙</text>
+            <text class="topic-head-intro">从火箭到黑洞，一起动手试试看</text>
+          </view>
+
+          <!-- 科普视频（《需求文档》4.2）
+               ⚠️ 流程缺口：无视频素材、无播放页，故卡片不可点。
+                  已在《接口契约》§8.2 登记。 -->
+          <view class="section-title">科普视频</view>
+          <view id="videoList"></view>
+
+          <!-- 互动实验闯关（《需求文档》4.3） -->
+          <view class="section-title">动手试一试</view>
+          <view class="side-note" id="doneNote"></view>
+          <view id="levelList"></view>
+
+          <!-- 商品位（《需求文档》4.4） -->
+          <view class="section-title">相关好物</view>
+          <view id="shopList"></view>
+
+        </view>
+      </view>
+    </div>
+  </div>
+
+  <!-- ===== 原型专用：演示条。转 .ttml 时整段删除 ===== -->
+  <view class="proto-bar">
+    <view class="proto-bar-title">原型演示条</view>
+    <text class="proto-btn" data-proto="age" data-age="3-6">分龄 3-6 · 暖</text>
+    <text class="proto-btn" data-proto="age" data-age="9-12">分龄 9-12 · 冷</text>
+    <text class="proto-btn" data-proto="back">← 回首页</text>
+    <view class="proto-bar-hint">点下方关卡进入闯关页</view>
+  </view>
+
+  <script src="js/data.js"></script>
+  <script src="js/interaction.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

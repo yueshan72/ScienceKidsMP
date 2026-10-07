@@ -1,0 +1,203 @@
+/* app.css —— 共用组件 + 原型外壳
+ *
+ * 本文件分两段，转 .ttss 时的处理方式不同：
+ *
+ *   ① 原型专用：手机外框、演示条、元素默认显示方式
+ *      → 【整段删除】，真机不需要
+ *
+ *   ② 可搬运的共用组件：.container / .section-title / .btn / .ad-mark …
+ *      → 【原样】进 app.ttss，只把 px 换成 rpx
+ *
+ * ⚠️ 本文件不得出现硬编码色值。颜色一律走 tokens.css 的变量，
+ *    否则主题切换会失灵——README 的自检 5 就是守这条的。
+ */
+
+/* ==================== ① 原型专用（转 .ttml/.ttss 时整段删除）==================== */
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--c-proto-bg);
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 让自定义标签的行为与小程序一致：view 是块，text 是行内。
+   这是「HTML 能干净转成 .ttml」的前提之一。 */
+view { display: block; }
+text { display: inline; }
+
+/* 手机外框。
+ * 内部按 750px 逻辑宽排版（于是 1px 在数值上等于 1rpx），
+ * 再用 zoom 缩放一半，得到 375×812 的真实手机观感。
+ *
+ * 为什么用 zoom 而不是 transform:scale：
+ *   transform 不改变元素占的布局尺寸，缩放后仍按 750×1624 占位，
+ *   要把内容裁进手机框就得写死高度 + overflow:hidden —— 那样内容会被裁掉
+ *   且无法滚动。zoom 会真的改变布局尺寸，于是内部可以正常滚动，
+ *   像真机一样。 */
+.phone {
+  position: relative;      /* 让 .mask 能定位在手机框内、且不随内容滚动 */
+  width: 750px;
+  height: 1624px;
+  zoom: .5;
+  margin: 64px auto;       /* 缩放后视觉上是 32px */
+  border-radius: 56px;     /* 视觉 28px */
+  overflow: hidden;
+  box-shadow: 0 24px 80px var(--c-proto-shadow);
+}
+
+/* 可滚动区。真机上这里是页面视口，内容在手机内部滚动。 */
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* 演示条：分龄切换、关卡切换、重置。真机没有这一段。 */
+.proto-bar {
+  position: fixed;
+  top: 32px;
+  right: 32px;
+  padding: var(--sp-3);
+  background: var(--c-proto-panel);
+  border: 1px solid var(--c-proto-line);
+  border-radius: 12px;
+  color: var(--c-proto-text);
+  font-size: 13px;
+  line-height: 1.4;
+  max-width: 168px;
+}
+
+.proto-bar-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--c-proto-ink);
+}
+
+.proto-bar-hint {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--c-proto-line);
+  font-size: 11px;
+  opacity: .75;
+}
+
+.proto-btn {
+  display: block;
+  margin: 6px 0;
+  padding: 7px 10px;
+  background: var(--c-proto-btn);
+  border: 1px solid var(--c-proto-line);
+  border-radius: 7px;
+  color: var(--c-proto-text);
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.proto-btn:hover { background: var(--c-proto-btn-hover); }
+.proto-btn.is-on {
+  background: var(--c-proto-on);
+  border-color: var(--c-proto-on);
+  color: var(--c-proto-on-ink);
+  font-weight: 700;
+}
+.proto-btn.is-dim { opacity: .4; cursor: default; }
+
+/* ==================== ② 可搬运的共用组件（→ app.ttss）==================== */
+
+/* 页面内容区。
+ *
+ * 主题 class（theme-warm / theme-cool）挂在外层容器上，不挂在这里——
+ * 因为它必须同时包住内容区和弹窗，弹窗才能读到主题变量。
+ * 这里只负责消费 --c-bg 画背景。
+ *
+ * 转 .ttml 时：TTSS 没有 :root / html / body，主题 class 挂根 view、
+ * 弹窗放在根 view 内部，结构自然成立。 */
+.page {
+  position: relative;      /* 让 .mask 弹窗能相对它铺满整屏 */
+  min-height: 100%;        /* 转 .ttss 时改成：min-height: 100vh */
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-size: var(--fs-body);
+  line-height: 1.6;
+}
+
+.container {
+  padding: var(--sp-4);    /* 现有 app.ttss 是 32rpx */
+}
+
+.section-title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  margin: var(--sp-5) 0 var(--sp-3);
+}
+
+.card {
+  background: var(--c-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: var(--sp-4);
+}
+
+.hint {
+  padding: var(--sp-5) var(--sp-3);
+  text-align: center;
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
+}
+
+.link {
+  color: var(--c-accent);
+  cursor: pointer;
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-min);
+  padding: 0 var(--sp-6);
+  background: var(--c-accent);
+  color: var(--c-accent-ink);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--c-text-weak);
+  border: 2px solid var(--c-line);
+}
+
+/* 广告合规标识。《需求文档》§9.1 硬性要求：带货内容必须显著标识。
+ * V1.0 不接精选联盟，但商品位与标识保留（见《接口契约》§3.4 范围决策）。 */
+.ad-mark {
+  display: inline-block;
+  font-size: var(--fs-xs);
+  color: var(--c-text-weak);
+  border: 1px solid var(--c-line);
+  border-radius: 4px;
+  padding: 0 6px;
+  line-height: 1.5;
+}
+
+/* 科学准确性标注。《需求文档》§9.2 硬性要求：涉及「外星人」「黑洞」等
+ * 争议性话题须标注「科学假设 / 未定论」。
+ * 语义与 .ad-mark 不同，故不复用——火箭关不涉及，此处先建样式备用。 */
+.disclaimer {
+  font-size: var(--fs-xs);
+  color: var(--c-text-weak);
+  background: var(--c-surface-2);
+  border-left: 6px solid var(--c-gold);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-3);
+  margin-top: var(--sp-2);
+}
+
+.is-hidden { display: none !important; }

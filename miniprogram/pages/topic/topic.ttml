@@ -1,36 +1,75 @@
-<!-- pages/topic/topic.ttml —— 主题内容页（太空） -->
-<view class="container">
+<!-- pages/topic/topic.ttml —— 主题内容页（太空）
+     依据：《需求文档》4.2 短视频科普 / 4.3 互动实验闯关 / 4.4 电商带货
 
-  <!-- 短视频列表（《需求文档》4.2） -->
-  <view class="section-title">科普视频</view>
-  <view tt:if="{{videoList.length === 0}}" class="hint">
-    短视频列表待实现（S2）—— 支持点赞 / 收藏 / 全屏播放
-  </view>
-  <view tt:else>
-    <view class="video-item" tt:for="{{videoList}}" tt:key="_id"
-          data-id="{{item._id}}" bindtap="onTapVideo">
-      <text>{{item.title}}</text>
+     页面角色：首页与关卡页之间的枢纽。
+       首页 ──→ 本页 ──→ 关卡页
+-->
+
+<view class="page theme-{{theme}}">
+  <view class="container">
+
+    <!-- 主题头部 -->
+    <view class="topic-head">
+      <text class="topic-head-title">🚀 太空 / 宇宙</text>
+      <text class="topic-head-intro">从火箭到黑洞，一起动手试试看</text>
+    </view>
+
+    <!-- 科普视频列表（《需求文档》4.2）
+         ⚠️ 流程缺口：卡片可点，但没有视频可播（assets/ 无素材、无播放页）。
+            已在《接口契约》§8.2 登记为「依赖 S4 内容生产」。 -->
+    <view class="section-title">科普视频</view>
+    <view tt:if="{{videoList.length === 0}}" class="hint">
+      这个年龄段的视频还在做，先玩玩下面的实验吧～
+    </view>
+    <block tt:else>
+      <view class="video-card"
+            tt:for="{{videoList}}"
+            tt:key="_id"
+            data-id="{{item._id}}"
+            bindtap="onTapVideo">
+        <text class="video-title">{{item.title}}</text>
+
+        <!-- 《需求文档》§9.2：争议性话题须标注「科学假设 / 未定论」 -->
+        <view tt:if="{{item.disputed}}" class="disclaimer">
+          ⚠️ 这一集涉及科学假设，尚无定论，和孩子一起讨论看看。
+        </view>
+
+        <view class="video-foot">
+          <text>{{item.durationText}}</text>
+          <!-- 《需求文档》§9.1：带货内容必须显著标识 -->
+          <text tt:if="{{item.adProduct}}" class="ad-mark">推广</text>
+        </view>
+      </view>
+    </block>
+
+    <!-- 互动实验闯关列表（《需求文档》4.3，核心留存） -->
+    <view class="section-title">动手试一试</view>
+    <view class="side-note">已完成 {{doneCount}} / {{levelList.length}}</view>
+    <view tt:if="{{levelList.length === 0}}" class="hint">
+      这个年龄段的实验还在做～
+    </view>
+    <block tt:else>
+      <view class="level-item {{item.done ? 'is-done' : ''}}"
+            tt:for="{{levelList}}"
+            tt:key="_id"
+            data-id="{{item._id}}"
+            bindtap="onTapLevel">
+        <text class="level-order">{{item.order}}</text>
+        <view class="level-main">
+          <text class="level-name">{{item.name}}</text>
+          <text class="level-point">{{item.sciencePoint}}</text>
+        </view>
+        <text class="level-state">{{item.done ? '已通关' : '去试试'}}</text>
+      </view>
+    </block>
+
+    <!-- 商品位：V1.0 不接精选联盟，静态占位。
+         「推广」标识必须保留（§9.1 硬性 + 《接口契约》§3.4 范围决策）。 -->
+    <view class="section-title">相关好物</view>
+    <view class="shop-card" tt:for="{{shopList}}" tt:key="_id">
+      <text class="shop-name">{{item.name}}</text>
       <text class="ad-mark">推广</text>
     </view>
-  </view>
 
-  <!-- 互动实验闯关（《需求文档》4.3，核心留存） -->
-  <view class="section-title">动手试一试</view>
-  <view tt:if="{{levelList.length === 0}}" class="hint">
-    关卡列表待实现（S2）—— 太空主题 5 关：火箭发射 / 陨石坑 / 行星排排队 / 看星座 / 黑洞引力
   </view>
-  <view tt:else>
-    <view class="level-item" tt:for="{{levelList}}" tt:key="_id"
-          data-id="{{item._id}}" bindtap="onTapLevel">
-      <text>{{item.order}}. {{item.name}}</text>
-      <text class="level-point">{{item.sciencePoint}}</text>
-    </view>
-  </view>
-
-  <!-- 商品推荐（《需求文档》4.4） -->
-  <view class="section-title">相关好物</view>
-  <view tt:if="{{productList.length === 0}}" class="hint">
-    商品位待实现（S2）—— 接精选联盟，每处 1-2 个商品
-  </view>
-
 </view>

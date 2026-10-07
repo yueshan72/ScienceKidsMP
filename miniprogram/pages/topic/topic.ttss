@@ -1,39 +1,135 @@
-/* pages/topic/topic.ttss */
+/* pages/topic/topic.ttss —— 主题内容页样式
+ * 这是【新设计】的一页：原型阶段只做了首页和关卡页，主题页从未设计过。
+ * 沿用既有设计语言与 app.ttss 的 token，不引入新色值。
+ */
 
-.section-title {
-  font-size: 32rpx;
-  font-weight: bold;
-  margin: 40rpx 0 20rpx;
+/* ---- 主题头部 ---- */
+
+.topic-head {
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-6) var(--sp-4);
+  background-color: var(--c-surface-2);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
 }
 
-.section-title:first-child {
-  margin-top: 0;
+.topic-head-title {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
 }
 
-.hint {
-  color: #8a93b8;
-  font-size: 24rpx;
-  padding: 32rpx 0;
-  text-align: center;
-  background-color: #141a33;
-  border-radius: 16rpx;
+.topic-head-intro {
+  margin-top: var(--sp-2);
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
 }
 
-.video-item,
-.level-item {
-  background-color: #141a33;
-  border-radius: 16rpx;
-  padding: 24rpx;
-  margin-bottom: 20rpx;
+/* ---- 区块小注（如「已完成 1 / 2」）---- */
+
+.side-note {
+  margin-bottom: var(--sp-3);
+  color: var(--c-text-weak);
+  font-size: var(--fs-xs);
 }
+
+/* ---- 科普视频卡片 ---- */
+
+.video-card {
+  display: block;
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-3);
+  background-color: var(--c-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.video-title {
+  display: block;
+  font-size: var(--fs-base);
+  font-weight: 700;
+}
+
+.video-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--sp-2);
+  color: var(--c-text-weak);
+  font-size: var(--fs-xs);
+}
+
+/* ---- 关卡列表 ---- */
 
 .level-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  min-height: 120rpx;      /* 关卡是核心动作，热区给足 */
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-3);
+  background-color: var(--c-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+/* 已通关的关卡降低存在感，把注意力留给没做的 */
+.level-item.is-done {
+  opacity: .62;
+}
+
+.level-order {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  margin-right: var(--sp-3);
+  background-color: var(--c-surface-2);
+  border-radius: var(--radius-pill);
+  color: var(--c-accent);
+  font-size: var(--fs-base);
+  font-weight: 700;
+}
+
+.level-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.level-name {
+  font-size: var(--fs-base);
+  font-weight: 700;
 }
 
 .level-point {
-  font-size: 22rpx;
-  color: #8a93b8;
+  margin-top: 4rpx;
+  color: var(--c-text-weak);
+  font-size: var(--fs-xs);
+}
+
+.level-state {
+  color: var(--c-accent);
+  font-size: var(--fs-xs);
+}
+
+.level-item.is-done .level-state {
+  color: var(--c-text-weak);
+}
+
+/* ---- 商品位 ---- */
+
+.shop-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-3);
+  padding: var(--sp-3);
+  background-color: var(--c-surface);
+  border-radius: var(--radius-card);
+}
+
+.shop-name {
+  font-size: var(--fs-sm);
+  color: var(--c-text-weak);
 }

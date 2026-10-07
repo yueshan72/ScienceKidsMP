@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>小宇宙科普 · 首页（原型）</title>
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-page="index">
+
+  <!-- 主题 class 挂在这一层，而不是 .page：
+       它必须同时包住「内容区」和「弹窗」，否则弹窗读不到主题变量，
+       背景会变成透明。 -->
+  <div class="phone theme-cool" id="root">
+    <div class="phone-screen">
+      <view class="page" id="page">
+        <view class="container">
+
+          <!-- 年龄段条：当前年龄段 + 修改入口（《需求文档》4.1） -->
+          <view class="age-bar">
+            <text>当前年龄段：<text id="ageText">未选择</text></text>
+            <text class="link" data-tap="openAgePicker">修改</text>
+          </view>
+
+          <!-- 主题入口（《需求文档》4.1） -->
+          <view class="topic-card" data-tap="topic">
+            <text class="topic-title">🚀 太空 / 宇宙</text>
+            <text class="topic-sub">去动手试一试</text>
+          </view>
+
+          <!-- 内容流：按年龄段推荐（《需求文档》4.1 / 4.2） -->
+          <view class="section-title">为你推荐</view>
+          <view id="contentList"></view>
+
+          <!-- 商品位：V1.0 不接精选联盟，静态占位。
+               「推广」标识必须保留（《需求文档》9.1 + 《接口契约》3.4 范围决策）。 -->
+          <view class="section-title">相关好物</view>
+          <view id="shopList"></view>
+
+        </view>
+      </view>
+    </div>
+
+    <!-- 年龄段选择弹窗（《需求文档》4.1：首次进入必须选）。
+         放在 .phone-screen 之外，这样它不随内容滚动，
+         且始终相对手机屏幕居中，而不是在整篇文档里居中。 -->
+    <view class="mask is-hidden" id="agePicker">
+      <view class="picker">
+        <view class="picker-title">选择年龄段</view>
+        <view class="picker-tip">我们会按年龄推荐合适难度的内容，随时可以修改</view>
+        <view class="picker-item" data-tap="pickAge" data-age="3-6">3-6 岁 · 学前</view>
+        <view class="picker-item" data-tap="pickAge" data-age="6-9">6-9 岁 · 低年级</view>
+        <view class="picker-item" data-tap="pickAge" data-age="9-12">9-12 岁 · 高年级</view>
+      </view>
+    </view>
+
+  </div>
+
+  <!-- ===== 原型专用：演示条。转 .ttml 时整段删除 ===== -->
+  <view class="proto-bar">
+    <view class="proto-bar-title">原型演示条</view>
+    <text class="proto-btn" data-proto="age" data-age="3-6">分龄 3-6 · 暖</text>
+    <text class="proto-btn" data-proto="age" data-age="6-9">分龄 6-9 · 暖</text>
+    <text class="proto-btn" data-proto="age" data-age="9-12">分龄 9-12 · 冷</text>
+    <text class="proto-btn" data-proto="clearcache">清除分龄记忆</text>
+    <view class="proto-bar-hint">点「太空 / 宇宙」卡片进入关卡页</view>
+  </view>
+
+  <script src="js/data.js"></script>
+  <script src="js/interaction.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

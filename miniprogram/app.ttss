@@ -1,15 +1,182 @@
-/* app.ttss —— 全局样式
-   分龄 UI 的视觉规范待 S1 设计定稿后统一替换 */
+/* app.ttss —— 全局样式 + 设计 token
+ *
+ * 从 prototypes/ 的 css/tokens.css + css/app.css 搬运而来。
+ * 单位换算：原型里写 px（且 1px 在数值上等于 1rpx），搬过来【数字一个没动】，
+ * 只把单位换成 rpx。这是当初把原型按 750px 逻辑宽排版的原因。
+ *
+ * ⚠️ 本项目依赖 CSS 变量（var()）。若抖音 TTSS 不支持，见文件末的降级说明。
+ */
 
 page {
-  background-color: #0b1026;
-  color: #e8ecf8;
+  /* ==================== 共用 token（不随主题变）==================== */
+
+  /* 间距 */
+  --sp-1: 8rpx;
+  --sp-2: 16rpx;
+  --sp-3: 24rpx;
+  --sp-4: 32rpx;
+  --sp-5: 40rpx;
+  --sp-6: 48rpx;
+  --sp-8: 64rpx;
+
+  /* 圆角 */
+  --radius-sm: 12rpx;
+  --radius-pill: 999rpx;
+
+  /* 字号阶 */
+  --fs-xs: 20rpx;
+  --fs-sm: 24rpx;
+  --fs-base: 28rpx;
+  --fs-lg: 32rpx;
+  --fs-xl: 40rpx;
+  --fs-2xl: 44rpx;
+
+  /* 触控热区下限。
+     ⚠️ 这是设计提案，不是《需求文档》的要求 —— 该文档对配色/字号/触控尺寸
+        零规格。88rpx = 44pt，移动端通用最小可点区。待评审确认。 */
+  --touch-min: 88rpx;
+
+  /* 动效 */
+  --dur-fast: .18s;
+  --dur-base: .3s;
+  --ease: cubic-bezier(.2, .7, .3, 1);
+
+  /* ==================== 默认主题：深空（cool）====================
+     定义在 page 上的原因：另外三个页面（topic / level / mine）没有主题
+     class，靠这里的默认值取值；否则它们的 var() 会解析失败变成无样式。 */
+
+  --c-bg: #0B1026;
+  --c-surface: #141A33;
+  --c-surface-2: #1B2444;
+  --c-text: #E8ECF8;
+  --c-text-weak: #8A93B8;
+  --c-accent: #4EA1FF;
+  --c-accent-ink: #06122B;
+  --c-gold: #FFD166;
+  --c-warn: #FF6B6B;
+  --c-line: #26305A;
+  --c-mask: rgba(0, 0, 0, .6);
+  --shadow-card: 0 6rpx 20rpx rgba(0, 0, 0, .45);
+  --radius-card: 16rpx;
+
+  /* 关卡场景底色（每关一套，随主题变） */
+  --c-scene-rocket: #0E1638;
+  --c-scene-meteor: #1A1A22;
+
+  background-color: var(--c-bg);
+  color: var(--c-text);
   font-size: 28rpx;
   line-height: 1.6;
 }
 
+/* ==================== 主题覆盖 ====================
+ * 用法：把 theme-warm / theme-cool 挂在页面的根 view 上，该子树内所有
+ * var() 都会取对应主题的值。布局完全共用，差异只在这些 token 上。
+ *
+ * ⚠️ 主题 class 必须挂在【同时包住正文和弹窗】的那一层。
+ *    CSS 变量只向下继承，弹窗若在主题层之外会读不到变量、背景变透明。
+ *    （这个坑在 HTML 原型阶段踩过一次。）
+ */
+
+/* 3-6 / 6-9 岁：暖白明亮。大圆角、大字号。 */
+.theme-warm {
+  --c-bg: #FFF8EE;
+  --c-surface: #FFFFFF;
+  --c-surface-2: #FFF1DE;
+  --c-text: #3A2E22;
+  --c-text-weak: #8A7A66;
+  --c-accent: #FF8A3D;
+  --c-accent-ink: #FFFFFF;
+  --c-gold: #FFC53D;
+  --c-warn: #E5544B;
+  --c-line: #F0E2CE;
+  --c-mask: rgba(58, 46, 34, .45);
+  --shadow-card: 0 6rpx 20rpx rgba(180, 140, 80, .16);
+  --radius-card: 32rpx;
+
+  --c-scene-rocket: #DCEBFF;
+  --c-scene-meteor: #E6E6EC;
+}
+
+/* 9-12 岁：深空紧凑。小圆角、小字号。 */
+.theme-cool {
+  --c-bg: #0B1026;
+  --c-surface: #141A33;
+  --c-surface-2: #1B2444;
+  --c-text: #E8ECF8;
+  --c-text-weak: #8A93B8;
+  --c-accent: #4EA1FF;
+  --c-accent-ink: #06122B;
+  --c-gold: #FFD166;
+  --c-warn: #FF6B6B;
+  --c-line: #26305A;
+  --c-mask: rgba(0, 0, 0, .6);
+  --shadow-card: 0 6rpx 20rpx rgba(0, 0, 0, .45);
+  --radius-card: 16rpx;
+
+  --c-scene-rocket: #0E1638;
+  --c-scene-meteor: #1A1A22;
+}
+
+/* ==================== 页面骨架 ==================== */
+
+/* 页面内容区。持有主题 class 的元素自己画背景。
+ * 用 min-height:100vh 让短内容也能铺满整屏。 */
+.page {
+  position: relative;      /* 让弹窗遮罩能相对它铺满 */
+  min-height: 100vh;
+  background-color: var(--c-bg);
+  color: var(--c-text);
+}
+
 .container {
-  padding: 32rpx;
+  padding: var(--sp-4);
+}
+
+/* ==================== 共用组件 ==================== */
+
+.section-title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  margin: var(--sp-5) 0 var(--sp-3);
+}
+
+.card {
+  background-color: var(--c-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: var(--sp-4);
+}
+
+.hint {
+  padding: var(--sp-5) var(--sp-3);
+  text-align: center;
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
+}
+
+.link {
+  color: var(--c-accent);
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--touch-min);
+  padding: 0 var(--sp-6);
+  background-color: var(--c-accent);
+  color: var(--c-accent-ink);
+  font-size: var(--fs-base);
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-pill);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--c-text-weak);
+  border: 2rpx solid var(--c-line);
 }
 
 /* 占位提示块：骨架阶段用于标注待实现项，S2 落地后删除 */
@@ -22,11 +189,34 @@ page {
   color: #4ea1ff;
 }
 
-/* 带货商品位必须显著标识（《需求文档》9.1 广告合规） */
+/* 广告合规标识。《需求文档》§9.1 硬性要求：带货内容必须显著标识。
+ * V1.0 不接精选联盟，但商品位与标识保留（《接口契约》§3.4 范围决策）。 */
 .ad-mark {
-  font-size: 20rpx;
-  color: #8a93b8;
-  border: 1rpx solid #8a93b8;
+  font-size: var(--fs-xs);
+  color: var(--c-text-weak);
+  border: 1rpx solid var(--c-line);
   border-radius: 4rpx;
   padding: 0 8rpx;
 }
+
+/* 科学准确性标注。《需求文档》§9.2 硬性要求：涉及「外星人」「黑洞」等
+ * 争议性话题须标注「科学假设 / 未定论」。语义与 .ad-mark 不同，不复用。 */
+.disclaimer {
+  font-size: var(--fs-xs);
+  color: var(--c-text-weak);
+  background-color: var(--c-surface-2);
+  border-left: 6rpx solid var(--c-gold);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-2) var(--sp-3);
+  margin-top: var(--sp-2);
+}
+
+/* ==================== 实测结论（2026-10-07）====================
+ *
+ * ✅ TTSS 支持 CSS 变量（var()）。
+ *    首页已搬成真 .ttml/.ttss 并在抖音开发者工具里跑通，配色/圆角/间距
+ *    全部来自 var()，渲染正常。故【不需要】降级方案。
+ *
+ * 仍未单独验证的（搬关卡页时会用到，届时一并确认）：
+ *    min-height: 100vh / transform: translate(-50%,-50%) / @keyframes / position: fixed
+ */
