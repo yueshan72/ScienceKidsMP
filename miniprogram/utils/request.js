@@ -21,8 +21,19 @@ const ERROR_MESSAGE = {
  * @returns {Promise<object>} 成功时 resolve 出 data，失败时 reject 出 {code, message}
  */
 function call(name, action, payload = {}) {
-  // TODO(S1)：抖音云开发 SDK 的确切调用方式需对照官方文档确认后落地。
-  //           契约 §2.1 已声明：入参/出参结构不受调用方式影响。
+  // 🔴 严重：下面的实现是【微信写法】，抖音云不适用，当前代码不可用！
+  //
+  //   抖音云的入口是 tt.createCloud({ envID, serviceID })，
+  //   根本不存在 tt.cloud 这个对象（微信才有 wx.cloud）。
+  //
+  //   已确认：tt.createCloud({envID, serviceID})  /  await cloud.database()
+  //   未确认：云函数（callFunction 类能力）的确切调用方法 —— 官方文档当前网络不可访问。
+  //
+  //   关闭办法：抖音开发者工具 →「抖音云」面板 → 部署任一云函数
+  //             → 右键「复制小程序端调用示例」→ 替换本函数实现。
+  //   详见 docs/接口契约.md §2.1。
+  //
+  // 契约 §2.1 已声明：入参 / 出参结构不受调用方式影响，故业务逻辑可先按契约推进。
   return new Promise((resolve, reject) => {
     if (typeof tt === 'undefined' || !tt.cloud || !tt.cloud.callFunction) {
       reject({ code: 5000, message: '云开发未初始化（见 app.js TODO）' });
