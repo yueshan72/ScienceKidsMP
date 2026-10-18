@@ -1,38 +1,235 @@
-/* pages/mine/mine.ttss */
+/* pages/mine/mine.ttss —— 我的
+   颜色/间距/圆角一律取 app.ttss 的 token，不在这里手写色值。 */
+
+.head {
+  padding: var(--sp-2) 0 var(--sp-3);
+}
+
+.head-title {
+  display: block;
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+}
+
+.head-sub {
+  display: block;
+  margin-top: var(--sp-1);
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
+}
+
+/* ---------------- 统计 ---------------- */
+.stats {
+  display: flex;
+  margin-bottom: var(--sp-2);
+}
+
+.stat {
+  flex: 1;
+  margin-right: var(--sp-2);
+  padding: var(--sp-3) var(--sp-2);
+  background-color: var(--c-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+}
+
+.stat:last-child {
+  margin-right: 0;
+}
+
+.stat-num {
+  display: block;
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--c-accent);
+}
+
+.stat-label {
+  display: block;
+  margin-top: var(--sp-1);
+  color: var(--c-text-weak);
+  font-size: var(--fs-xs);
+}
+
+/* ---------------- 通用行 ---------------- */
+.card {
+  margin-bottom: var(--sp-2);
+}
 
 .row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #141a33;
-  border-radius: 16rpx;
-  padding: 28rpx 24rpx;
-  margin-bottom: 20rpx;
+  min-height: var(--touch-min);
+  border-bottom: 1rpx solid var(--c-line);
+}
+
+.row:last-child {
+  border-bottom: none;
 }
 
 .value {
-  color: #8a93b8;
+  color: var(--c-text-weak);
 }
 
-.section-title {
-  font-size: 30rpx;
-  font-weight: bold;
-  margin: 40rpx 0 20rpx;
+/* ---------------- 闯关进度 ---------------- */
+.level-card {
+  margin-bottom: var(--sp-2);
 }
 
-.hint {
-  color: #8a93b8;
-  font-size: 24rpx;
-  padding: 32rpx 0;
+.level-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.level-name {
+  font-weight: 700;
+}
+
+.stars {
+  color: var(--c-gold);
+  letter-spacing: 2rpx;
+}
+
+.science {
+  display: block;
+  margin-top: var(--sp-1);
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
+}
+
+/* ---------------- 徽章 ---------------- */
+.badge-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.badge-item {
+  width: 150rpx;
+  margin: 0 var(--sp-2) var(--sp-2) 0;
+  padding: var(--sp-3) var(--sp-2);
+  background-color: var(--c-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
   text-align: center;
-  background-color: #141a33;
-  border-radius: 16rpx;
 }
 
-.btn {
-  margin-top: 20rpx;
-  background-color: #4ea1ff;
-  color: #06122b;
-  border-radius: 999rpx;
-  font-weight: bold;
+.badge-icon {
+  display: block;
+  font-size: 56rpx;
+}
+
+.badge-name {
+  display: block;
+  margin-top: var(--sp-1);
+  color: var(--c-text-weak);
+  font-size: var(--fs-xs);
+}
+
+/* ---------------- 打卡 ---------------- */
+.calendar {
+  display: flex;
+  flex-wrap: wrap;
+  margin: var(--sp-2) 0;
+}
+
+.cal-item {
+  width: 56rpx;
+  height: 56rpx;
+  margin: 0 8rpx 8rpx 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: var(--c-surface-2);
+  color: var(--c-text-weak);
+  font-size: var(--fs-xs);
+}
+
+.cal-item.is-done {
+  background-color: var(--c-accent);
+  color: var(--c-accent-ink);
+  font-weight: 700;
+}
+
+.cal-item.is-today {
+  border: 2rpx solid var(--c-gold);
+}
+
+.checkin-btn {
+  margin-top: var(--sp-2);
+}
+
+/* ---------------- 收藏 ---------------- */
+.fav-item {
+  padding: var(--sp-3) 0;
+  border-bottom: 1rpx solid var(--c-line);
+}
+
+.fav-item:last-child {
+  border-bottom: none;
+}
+
+/* ---------------- 隐私与数据 ---------------- */
+.privacy-note {
+  margin-top: var(--sp-2);
+  color: var(--c-text-weak);
+  font-size: var(--fs-xs);
+  line-height: 1.7;
+}
+
+/* ---------------- 年龄段弹窗 ---------------- */
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 99;
+  padding: var(--sp-4);
+  background-color: var(--c-mask);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.picker {
+  width: 100%;
+  padding: var(--sp-5);
+  background-color: var(--c-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+
+.picker-title {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  text-align: center;
+}
+
+.picker-tip {
+  margin: var(--sp-2) 0 var(--sp-4);
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
+  text-align: center;
+}
+
+.picker-item {
+  min-height: var(--touch-min);
+  margin-bottom: var(--sp-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--c-surface-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--fs-base);
+}
+
+.picker-cancel {
+  margin-top: var(--sp-3);
+  text-align: center;
+  color: var(--c-text-weak);
+  font-size: var(--fs-sm);
 }

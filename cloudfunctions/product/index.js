@@ -1,47 +1,15 @@
-// cloudfunctions/product —— 精选联盟商品
-// 契约：docs/接口契约.md §3.4
+// cloudfunctions/product —— 精选联盟商品（预留契约，V1.0 不实现、不部署）
+// 契约：docs/接口契约.md §3.4 范围决策（学生主体无法满足精选联盟准入门槛）
 //
-// 注：各云函数独立部署，信封工具在四个函数里各留一份是刻意的。
+// 保留本文件的作用是让「预留契约」有明确归宿；部署时跳过这个目录。
+// 未来若主体条件具备，按契约 §3.4 的入参/出参实现即可，前端无需改动。
 
-const ok = (data) => ({ code: 0, message: 'ok', data });
-const fail = (code, message) => ({ code, message, data: null });
+'use strict';
 
-exports.main = async (event = {}) => {
-  const { action, ...payload } = event;
-
-  switch (action) {
-    case 'listByContent':
-      return onListByContent(payload);
-
-    case 'listByLevel':
-      return onListByLevel(payload);
-
-    default:
-      return fail(1002, `未知 action: ${action}`);
-  }
+module.exports = async function (params, context) {
+  return {
+    code: 4002,
+    message: 'V1.0 不接入精选联盟',
+    data: null
+  };
 };
-
-/**
- * 按内容取商品位（视频下方，每处 1-2 个）
- * 入参 { contentId }
- * 出参 { list:[{productId,name,cover,price,jumpUrl,hasAdMark}] }
- *
- * ⚠️ 合规（《需求文档》9.1）：
- *    - 带货内容必须**显著标识**，不得诱导性、夸大性消费引导
- *    - 故返回值带 hasAdMark，前端须据此渲染"推广"标记
- */
-async function onListByContent({ contentId }) {
-  if (!contentId) return fail(1002, 'contentId 必填');
-  // TODO(S3)：接精选联盟商品接口；不自建商品体系（《开发计划书》第 1 节）
-  return ok({ list: [] });
-}
-
-/**
- * 按关卡取商品位
- * 入参 { levelId }
- * 出参同 listByContent
- */
-async function onListByLevel({ levelId }) {
-  if (!levelId) return fail(1002, 'levelId 必填');
-  return ok({ list: [] });
-}

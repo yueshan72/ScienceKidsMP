@@ -1,7 +1,9 @@
 {
   "name": "progress",
-  "version": "0.1.0",
-  "description": "闯关进度（接口契约 §3.2）",
+  "version": "0.2.0",
+  "description": "闯关进度 / 星星 / 徽章（接口契约 §3.2）",
   "main": "index.js",
-  "dependencies": {}
+  "dependencies": {
+    "@open-dy/node-server-sdk": "^1.2.2"
+  }
 }

@@ -3,6 +3,7 @@
     "pages/index/index",
     "pages/topic/topic",
     "pages/level/level",
+    "pages/video/video",
     "pages/mine/mine"
   ],
   "window": {

@@ -59,6 +59,17 @@
   font-size: var(--fs-xs);
 }
 
+.video-foot-right {
+  display: flex;
+  align-items: center;
+}
+
+.fav {
+  margin-right: var(--sp-2);
+  font-size: var(--fs-lg);
+  color: var(--c-gold);
+}
+
 /* ---- 关卡列表 ---- */
 
 .level-item {

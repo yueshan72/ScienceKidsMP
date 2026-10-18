@@ -9,11 +9,11 @@
 
 const app = getApp();
 const DEMO = require('../../utils/demo-data.js');
+const Local = require('../../utils/local-state.js');
 const Interaction = require('../../utils/interaction.js');
-const progress = require('../../utils/mock-progress.js');
-
-const AGE_THEME = { '3-6': 'warm', '6-9': 'warm', '9-12': 'cool' };
-const STORAGE_KEY = 'sci.ageGroup';
+const dataService = require('../../utils/data-service.js');
+const Age = require('../../utils/age.js');
+const Format = require('../../utils/format.js');
 
 Page({
   data: {
@@ -32,8 +32,8 @@ Page({
   },
 
   onLoad(query) {
-    const age = app.globalData.ageGroup || this.restoreAge();
-    this.setData({ theme: AGE_THEME[age] || 'cool' });
+    const age = app.globalData.ageGroup || Local.getAgeGroup();
+    this.setData({ theme: Age.themeOf(age) });
     this.loadLevel(query.id || firstLevelId());
   },
 
@@ -51,6 +51,7 @@ Page({
     }
 
     this.level = lv;
+    this._settleSeq = (this._settleSeq || 0) + 1; // 作废上一关未返回的结算
 
     // 引擎唯一输入就是 interactionConfig —— 它不认识关卡 id
     this.it = Interaction.init(lv.interactionConfig);
@@ -113,19 +114,33 @@ Page({
    *    这是《接口契约》§3.2 里最容易被写错的一条（进度与奖励是核心数据）。
    */
   settle() {
-    // TODO(S3)：替换为
-    //   call('progress', 'complete', { levelId }).then(...)
-    // mock-progress 是它的临时替身，幂等语义与契约 §3.2 一致。
-    const d = progress.complete(this.level._id, this.it.wrongCount);
+    /* 结算序号：若结算返回前用户点了「再试一次」或切了关卡，
+       旧结果不得覆盖新状态。 */
+    this._settleSeq = (this._settleSeq || 0) + 1;
+    const seq = this._settleSeq;
 
-    this.setData({
-      reward: { starsText: starsText(d.stars) },
-      showBadge: d.newBadges.length > 0
+    /* 云优先、本地兜底：云环境未配置时 data-service 直接用本地幂等实现，
+       配置后自动改走 progress 云函数（星级/徽章由服务端判定，契约 §3.2）。 */
+    dataService.completeLevel(
+      this.level._id,
+      this.it.wrongCount,
+      this.level.topicId
+    ).then((d) => {
+      if (seq !== this._settleSeq) return;
+      this.setData({
+        reward: { starsText: Format.starsText(d.stars) },
+        showBadge: (d.newBadges || []).length > 0
+      });
+    }).catch(() => {
+      if (seq !== this._settleSeq) return;
+      /* data-service 内部已回落本地；这里只兜住极端异常，避免卡在通关态无反馈 */
+      this.setData({ reward: { starsText: '★★★' }, showBadge: false });
     });
   },
 
   onReset() {
     clearTimeout(this._hintTimer);
+    this._settleSeq = (this._settleSeq || 0) + 1; // 作废未返回的结算
     this.it = Interaction.reset(this.level.interactionConfig);
     this.setData({
       targets: this.it.targets,
@@ -137,9 +152,6 @@ Page({
     });
   },
 
-  restoreAge() {
-    try { return tt.getStorageSync(STORAGE_KEY) || null; } catch (e) { return null; }
-  }
 });
 
 /* ---------------- 小工具 ---------------- */
@@ -161,9 +173,4 @@ function buildDeco(scene) {
       rotStyle: 'transform: rotate(' + (d.rotate || 0) + 'deg);'
     };
   });
-}
-
-/** 3 颗星 → ★★★，2 颗 → ★★☆ */
-function starsText(n) {
-  return '★★★'.slice(0, n) + '☆☆☆'.slice(0, 3 - n);
 }

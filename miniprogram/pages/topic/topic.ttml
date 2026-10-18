@@ -36,8 +36,12 @@
 
         <view class="video-foot">
           <text>{{item.durationText}}</text>
-          <!-- 《需求文档》§9.1：带货内容必须显著标识 -->
-          <text tt:if="{{item.adProduct}}" class="ad-mark">推广</text>
+          <view class="video-foot-right">
+            <!-- 收藏（《需求文档》4.2 / 4.5） -->
+            <text class="fav" data-id="{{item._id}}" catchtap="onToggleFav">{{item.fav ? '★' : '☆'}}</text>
+            <!-- 《需求文档》§9.1：带货内容必须显著标识 -->
+            <text tt:if="{{item.adProduct}}" class="ad-mark">推广</text>
+          </view>
         </view>
       </view>
     </block>

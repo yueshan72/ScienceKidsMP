@@ -14,7 +14,11 @@ var DEMO = {
     {
       _id: 'c1', topicId: 'space', type: 'video',
       title: '火箭为什么能飞上天？', ageGroup: '3-6', duration: 95,
-      adProduct: true
+      adProduct: true,
+      /* V1.0 用 CC0 占位视频验证播放链路；正式内容由团队替换。
+         大文件请改用云存储 + CDN，避免超出小程序包体限制。 */
+      mediaUrl: '/assets/sample.mp4',
+      levelId: 'rocket-1'
     },
     {
       _id: 'c2', topicId: 'space', type: 'video',
@@ -42,7 +46,8 @@ var DEMO = {
     {
       _id: 'c6', topicId: 'space', type: 'video',
       title: '第一宇宙速度是怎么算出来的？', ageGroup: '9-12', duration: 180,
-      adProduct: false
+      adProduct: false,
+      levelId: 'rocket-1'
     }
   ],
 

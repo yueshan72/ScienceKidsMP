@@ -5,16 +5,17 @@
 
 const app = getApp();
 const DEMO = require('../../utils/demo-data.js');
+const Local = require('../../utils/local-state.js');
 const progress = require('../../utils/mock-progress.js');
-
-const AGE_THEME = { '3-6': 'warm', '6-9': 'warm', '9-12': 'cool' };
-const STORAGE_KEY = 'sci.ageGroup';
+const Age = require('../../utils/age.js');
+const Format = require('../../utils/format.js');
 
 const TOPIC_ID = 'space';
 
 Page({
   data: {
     theme: 'cool',
+    ageGroup: null,
     videoList: [],
     levelList: [],
     shopList: [],
@@ -24,14 +25,14 @@ Page({
   /* 用 onShow 而不是 onLoad：从关卡页返回时要刷新通关状态，
      否则刚通关回来还显示「去试试」。 */
   onShow() {
-    const age = app.globalData.ageGroup || this.restoreAge();
-    this.setData({ theme: AGE_THEME[age] || 'cool' });
+    const age = app.globalData.ageGroup || Local.getAgeGroup();
+    this.setData({ theme: Age.themeOf(age), ageGroup: age });
     this.refresh(age);
   },
 
   refresh(age) {
-    // TODO(S3)：以下三块都改为云函数拉取，分龄过滤必须在云函数里做
-    //          （见《接口契约》§5「前端待对齐项」）。此处为临时实现。
+    /* V1.0 范围决策：视频/关卡内容为客户端静态数据（契约 §8.3）；
+       用户进度读取本地镜像，云环境就绪后由 data-service 同步到 progress 云函数。 */
 
     const videoList = DEMO.contents
       .filter(function (c) {
@@ -40,7 +41,10 @@ Page({
           && (!age || c.ageGroup === age);
       })
       .map(function (c) {
-        return Object.assign({}, c, { durationText: fmtDuration(c.duration) });
+        return Object.assign({}, c, {
+          durationText: Format.fmtDuration(c.duration),
+          fav: Local.isFavorite(c._id)
+        });
       });
 
     /* 关卡列表：本主题的全部关卡。
@@ -76,19 +80,19 @@ Page({
     tt.navigateTo({ url: '/pages/level/level?id=' + levelId });
   },
 
-  onTapVideo() {
-    /* 流程缺口（《接口契约》§8.2）：assets/ 里没有任何视频素材，
-       也没有播放页。这里刻意不做假动作 —— 与其弹个假提示，
-       不如什么都不发生，问题已登记在案。 */
-    // TODO(S4)：视频素材到位后，跳播放页
+  onTapVideo(e) {
+    /* 播放页已落地：有 mediaUrl 就播放，没有就显示「素材准备中」占位。
+       正式素材由团队补齐（§8.2）。 */
+    const id = e.currentTarget.dataset.id;
+    if (!id) return;
+    tt.navigateTo({ url: '/pages/video/video?id=' + id });
   },
 
-  restoreAge() {
-    try { return tt.getStorageSync(STORAGE_KEY) || null; } catch (e) { return null; }
+  onToggleFav(e) {
+    const id = e.currentTarget.dataset.id;
+    if (!id) return;
+    const added = Local.toggleFavorite(id);
+    tt.showToast({ title: added ? '已收藏' : '已取消收藏', icon: 'none' });
+    this.refresh(this.data.ageGroup);
   }
 });
-
-/** 秒 → 1′35″ */
-function fmtDuration(sec) {
-  return Math.floor(sec / 60) + '′' + (sec % 60) + '″';
-}

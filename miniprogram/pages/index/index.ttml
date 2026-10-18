@@ -4,53 +4,88 @@
        class="is-hidden" → tt:if="{{...}}"
        JS 拼 DOM          → tt:for
      依据：《需求文档》4.1 首页（年龄段选择 / 主题入口 / 内容流）
+     合规：§9.1 —— 监护人同意前不展示/不处理儿童数据
 -->
 
 <view class="page theme-{{theme}}">
   <view class="container">
 
-    <!-- 年龄段条：当前年龄段 + 修改入口（可随时修改） -->
-    <view class="age-bar">
-      <text>当前年龄段：<text>{{ageLabel}}</text></text>
-      <text class="link" bindtap="onOpenAgePicker">修改</text>
-    </view>
+    <block tt:if="{{consentGranted}}">
 
-    <!-- 主题入口 -->
-    <view class="topic-card" bindtap="onTapTopic">
-      <text class="topic-title">🚀 太空 / 宇宙</text>
-      <text class="topic-sub">去动手试一试</text>
-    </view>
+      <!-- 年龄段条：当前年龄段 + 修改入口（可随时修改） -->
+      <view class="age-bar">
+        <text>当前年龄段：<text>{{ageLabel}}</text></text>
+        <text class="link" bindtap="onOpenAgePicker">修改</text>
+      </view>
 
-    <!-- 内容流：按年龄段推荐（《需求文档》4.1 / 4.2） -->
-    <view class="section-title">为你推荐</view>
-    <view tt:if="{{contentList.length === 0}}" class="hint">
-      这个年龄段的内容还在做，先看看别的吧～
-    </view>
+      <!-- 主题入口 -->
+      <view class="topic-card" bindtap="onTapTopic">
+        <text class="topic-title">🚀 太空 / 宇宙</text>
+        <text class="topic-sub">去动手试一试</text>
+      </view>
+
+      <!-- 内容流：按年龄段推荐（《需求文档》4.1 / 4.2） -->
+      <view class="section-title">为你推荐</view>
+      <view tt:if="{{contentList.length === 0}}" class="hint">
+        这个年龄段的内容还在做，先看看别的吧～
+      </view>
+      <block tt:else>
+        <view class="video-card"
+              tt:for="{{contentList}}"
+              tt:key="_id"
+              data-id="{{item._id}}"
+              bindtap="onTapVideo">
+          <text class="video-title">{{item.title}}</text>
+
+          <!-- 《需求文档》§9.2：争议性话题须标注「科学假设 / 未定论」 -->
+          <view tt:if="{{item.disputed}}" class="disclaimer">
+            ⚠️ 这一集涉及科学假设，尚无定论，和孩子一起讨论看看。
+          </view>
+
+          <view class="video-foot">
+            <text>{{item.durationText}}</text>
+            <view class="video-foot-right">
+              <!-- 收藏（《需求文档》4.2 / 4.5） -->
+              <text class="fav" data-id="{{item._id}}" catchtap="onToggleFav">{{item.fav ? '★' : '☆'}}</text>
+              <!-- 《需求文档》§9.1：带货内容必须显著标识 -->
+              <text tt:if="{{item.adProduct}}" class="ad-mark">推广</text>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <!-- 商品位：V1.0 不接精选联盟，静态占位。
+           「推广」标识必须保留（§9.1 硬性 + 《接口契约》§3.4 范围决策）。 -->
+      <view class="section-title">相关好物</view>
+      <view class="shop-card" tt:for="{{shopList}}" tt:key="_id">
+        <text class="shop-name">{{item.name}}</text>
+        <text class="ad-mark">推广</text>
+      </view>
+
+    </block>
+
+    <!-- 未同意：不展示儿童内容，也不采集任何数据 -->
     <block tt:else>
-      <view class="video-card" tt:for="{{contentList}}" tt:key="_id">
-        <text class="video-title">{{item.title}}</text>
-
-        <!-- 《需求文档》§9.2：争议性话题须标注「科学假设 / 未定论」 -->
-        <view tt:if="{{item.disputed}}" class="disclaimer">
-          ⚠️ 这一集涉及科学假设，尚无定论，和孩子一起讨论看看。
-        </view>
-
-        <view class="video-foot">
-          <text>{{item.durationText}}</text>
-          <!-- 《需求文档》§9.1：带货内容必须显著标识 -->
-          <text tt:if="{{item.adProduct}}" class="ad-mark">推广</text>
-        </view>
+      <view class="consent-block">
+        <text class="consent-block-icon">👨‍👩‍👧</text>
+        <text class="consent-block-title">需要监护人同意</text>
+        <text class="consent-block-text">本小程序面向儿童。请由监护人阅读隐私说明并同意后，再开始使用。</text>
+        <button class="btn consent-block-btn" bindtap="onReconsiderConsent">查看并同意</button>
       </view>
     </block>
 
-    <!-- 商品位：V1.0 不接精选联盟，静态占位。
-         「推广」标识必须保留（§9.1 硬性 + 《接口契约》§3.4 范围决策）。 -->
-    <view class="section-title">相关好物</view>
-    <view class="shop-card" tt:for="{{shopList}}" tt:key="_id">
-      <text class="shop-name">{{item.name}}</text>
-      <text class="ad-mark">推广</text>
-    </view>
+  </view>
 
+  <!-- 监护人同意弹窗（《需求文档》§9.1 硬性要求） -->
+  <view class="mask" tt:if="{{showConsent}}">
+    <view class="consent">
+      <view class="consent-title">监护人同意</view>
+      <view class="consent-text">
+        本小程序面向儿童。使用前请由监护人阅读并同意：我们只收集年龄段、闯关进度、徽章和打卡记录，用于分龄推荐与进度展示；不收集位置、联系方式等敏感信息；可随时在「我的」中更正年龄、删除数据或撤回同意。
+      </view>
+      <button class="btn" bindtap="onAgreeConsent">同意并继续</button>
+      <view class="consent-decline" bindtap="onDeclineConsent">暂不同意</view>
+    </view>
   </view>
 
   <!-- 年龄段选择弹窗（《需求文档》4.1：首次进入必须选）

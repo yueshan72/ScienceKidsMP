@@ -4,37 +4,36 @@
 //     原型里的 DOM 操作        ←→  setData + ttml 的 tt:for / tt:if
 //
 // 依据：《需求文档》4.1 首页（年龄段选择 / 主题入口 / 内容流）
+// 合规：《需求文档》§9.1 —— 首次使用须由监护人同意后才处理儿童信息
 
 const app = getApp();
 const DEMO = require('../../utils/demo-data.js');
-
-/* 三档年龄 → 两套主题。6-9 暂继承暖色。
-   因为主题只是 token 覆盖，日后要给它单独一套，加一段样式即可，布局不动。 */
-const AGE_THEME = { '3-6': 'warm', '6-9': 'warm', '9-12': 'cool' };
-const AGE_LABEL = { '3-6': '3-6 岁', '6-9': '6-9 岁', '9-12': '9-12 岁' };
-const AGE_OPTIONS = [
-  { value: '3-6', label: '3-6 岁 · 学前' },
-  { value: '6-9', label: '6-9 岁 · 低年级' },
-  { value: '9-12', label: '9-12 岁 · 高年级' }
-];
-
-const STORAGE_KEY = 'sci.ageGroup';
+const Local = require('../../utils/local-state.js');
+const dataService = require('../../utils/data-service.js');
+const Age = require('../../utils/age.js');
+const Format = require('../../utils/format.js');
 
 Page({
   data: {
-    theme: 'cool',        // 未选择年龄段时的默认主题（深空）
+    theme: 'cool',
     ageGroup: null,
     ageLabel: '未选择',
-    ageOptions: AGE_OPTIONS,
+    ageOptions: Age.AGE_OPTIONS,
     showAgePicker: false,
+    showConsent: false,
+    consentGranted: false,
+    consentDenied: false,
     contentList: [],
     shopList: []
   },
 
   onLoad() {
-    // TODO(S3)：改为 call('user', 'getProfile') 拉取用户档案，见《接口契约》§3.1
-    const ageGroup = app.globalData.ageGroup || this.restoreAge();
+    const consentGranted = Local.getConsent().granted;
+    this.setData({ consentGranted: consentGranted, showConsent: !consentGranted });
 
+    if (!consentGranted) return;
+
+    const ageGroup = app.globalData.ageGroup || Local.getAgeGroup();
     if (ageGroup) {
       this.applyAge(ageGroup, { persist: false });
     } else {
@@ -44,6 +43,62 @@ Page({
     }
   },
 
+  /* 从「我的」页返回时同步：年龄可能被更正，也可能撤回同意后清空了数据 */
+  onShow() {
+    const consent = Local.getConsent();
+    if (!consent.granted) {
+      this.setData({
+        consentGranted: false,
+        consentDenied: false,
+        showConsent: true,
+        showAgePicker: false,
+        contentList: [],
+        shopList: []
+      });
+      return;
+    }
+
+    if (!this.data.consentGranted) {
+      this.setData({ consentGranted: true, showConsent: false });
+    }
+
+    const age = app.globalData.ageGroup || Local.getAgeGroup();
+    if (age && age !== this.data.ageGroup) {
+      this.applyAge(age, { persist: false });
+    } else {
+      this.refreshLists();
+    }
+  },
+
+  /* ---------------- 监护人同意（§9.1） ---------------- */
+
+  onAgreeConsent() {
+    Local.grantConsent();
+    const age = app.globalData.ageGroup || Local.getAgeGroup();
+    this.setData({
+      consentGranted: true,
+      consentDenied: false,
+      showConsent: false,
+      showAgePicker: !age
+    });
+    if (age) this.applyAge(age, { persist: false });
+    else this.refreshLists();
+  },
+
+  onDeclineConsent() {
+    this.setData({
+      showConsent: false,
+      consentDenied: true,
+      showAgePicker: false,
+      contentList: [],
+      shopList: []
+    });
+  },
+
+  onReconsiderConsent() {
+    this.setData({ showConsent: true, consentDenied: false });
+  },
+
   /* ---------------- 分龄 ---------------- */
 
   /**
@@ -51,49 +106,38 @@ Page({
    * 同时驱动配色、文案、内容流过滤，避免三处状态各自为政。
    */
   applyAge(ageGroup, opts) {
-    const theme = AGE_THEME[ageGroup] || 'cool';
-
     app.globalData.ageGroup = ageGroup;
-    // TODO(S3)：调用 user 云函数的 setAgeGroup 持久化，见《接口契约》§3.1
-    if (!opts || opts.persist !== false) this.persistAge(ageGroup);
+    if (!opts || opts.persist !== false) dataService.setAgeGroup(ageGroup);
 
     this.setData({
       ageGroup: ageGroup,
-      theme: theme,
-      ageLabel: AGE_LABEL[ageGroup] || ageGroup,
+      theme: Age.themeOf(ageGroup),
+      ageLabel: Age.labelOf(ageGroup),
       showAgePicker: false
     });
 
     this.refreshLists();
   },
 
-  restoreAge() {
-    try {
-      return tt.getStorageSync(STORAGE_KEY) || null;
-    } catch (e) {
-      return null;
-    }
-  },
-
-  persistAge(ageGroup) {
-    try {
-      tt.setStorageSync(STORAGE_KEY, ageGroup);
-    } catch (e) {
-      /* 存储不可用就算了，不影响本次会话 */
-    }
-  },
-
   /* ---------------- 列表 ---------------- */
 
   refreshLists() {
+    if (!Local.getConsent().granted) {
+      this.setData({ contentList: [], shopList: [] });
+      return;
+    }
+
     const age = this.data.ageGroup;
 
-    // TODO(S3)：改为云函数拉取。分龄过滤必须【在云函数里做，不在前端做】
-    //          （见《接口契约》§5「前端待对齐项」）。此处为临时实现。
+    /* V1.0 范围决策：视频内容为客户端静态数据，不设 content 云函数
+       （见《接口契约》§8.3）。接入内容管理端后再把分龄过滤移入服务端。 */
     const contentList = DEMO.contents
       .filter(function (c) { return !age || c.ageGroup === age; })
       .map(function (c) {
-        return Object.assign({}, c, { durationText: fmtDuration(c.duration) });
+        return Object.assign({}, c, {
+          durationText: Format.fmtDuration(c.duration),
+          fav: Local.isFavorite(c._id)
+        });
       });
 
     this.setData({
@@ -115,10 +159,19 @@ Page({
 
   onTapTopic() {
     tt.navigateTo({ url: '/pages/topic/topic' });
+  },
+
+  onTapVideo(e) {
+    const id = e.currentTarget.dataset.id;
+    if (!id) return;
+    tt.navigateTo({ url: '/pages/video/video?id=' + id });
+  },
+
+  onToggleFav(e) {
+    const id = e.currentTarget.dataset.id;
+    if (!id) return;
+    const added = Local.toggleFavorite(id);
+    tt.showToast({ title: added ? '已收藏' : '已取消收藏', icon: 'none' });
+    this.refreshLists();
   }
 });
-
-/** 秒 → 1′35″ 这样的展示文本 */
-function fmtDuration(sec) {
-  return Math.floor(sec / 60) + '′' + (sec % 60) + '″';
-}

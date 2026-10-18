@@ -1,0 +1,71 @@
+<!-- pages/video/video.ttml —— 短视频播放页
+     依据：《需求文档》4.2（播放 / 点赞 / 收藏 / 全屏 / 关联实验）
+-->
+<view class="page theme-{{theme}}">
+  <view class="container">
+
+    <view tt:if="{{error}}" class="hint">{{error}}</view>
+
+    <block tt:else>
+
+      <!-- 播放器：有素材就播放，没素材显示占位，不白屏 -->
+      <view class="video-box">
+        <video tt:if="{{mediaUrl}}"
+               class="video"
+               src="{{mediaUrl}}"
+               controls
+               object-fit="contain"
+               binderror="onVideoError"></video>
+        <view tt:else class="video-placeholder">
+          <text class="ph-icon">🎬</text>
+          <text class="ph-title">视频素材准备中</text>
+          <text class="ph-tip">团队补上 3-4 条短视频后即可播放</text>
+        </view>
+      </view>
+
+      <text class="video-title">{{content.title}}</text>
+
+      <view class="video-meta">
+        <text>{{durationText}}</text>
+        <!-- 《需求文档》§9.1：带货内容必须显著标识 -->
+        <text tt:if="{{content.adProduct}}" class="ad-mark">推广</text>
+      </view>
+
+      <!-- 《需求文档》§9.2：争议性话题须标注「科学假设 / 未定论」 -->
+      <view tt:if="{{content.disputed}}" class="disclaimer">
+        ⚠️ 这一集涉及科学假设，尚无定论，和孩子一起讨论看看。
+      </view>
+
+      <!-- 占位素材说明：避免把示例视频误当正式内容 -->
+      <view tt:if="{{isSample}}" class="disclaimer">
+        🎬 当前播放的是 CC0 占位素材，用于验证播放链路；正式太空主题视频待团队替换。
+      </view>
+
+      <!-- 点赞 / 收藏（V1.0 仅本地） -->
+      <view class="actions">
+        <view class="action {{liked ? 'is-on' : ''}}" bindtap="onToggleLike">
+          <text class="action-icon">{{liked ? '❤️' : '🤍'}}</text>
+          <text>{{liked ? '已赞' : '点赞'}}</text>
+        </view>
+        <view class="action {{fav ? 'is-on' : ''}}" bindtap="onToggleFav">
+          <text class="action-icon">{{fav ? '★' : '☆'}}</text>
+          <text>{{fav ? '已收藏' : '收藏'}}</text>
+        </view>
+      </view>
+
+      <button class="btn go-btn" bindtap="onGoLevel">
+        {{levelId ? '去动手试一试' : '去看看实验'}}
+      </button>
+
+      <!-- 商品位：V1.0 不接精选联盟，静态占位，「推广」标识保留 -->
+      <view class="section-title">相关好物</view>
+      <view tt:if="{{shopList.length === 0}}" class="hint">暂无相关好物</view>
+      <view tt:else class="shop-card" tt:for="{{shopList}}" tt:key="_id">
+        <text class="shop-name">{{item.name}}</text>
+        <text class="ad-mark">推广</text>
+      </view>
+
+    </block>
+
+  </view>
+</view>
