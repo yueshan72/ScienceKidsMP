@@ -259,9 +259,12 @@ const LocalState = {
     remove(KEYS.likes);
   },
 
+  /**
+   * 删除我的数据：只清业务数据，保留同意记录。
+   * 删除数据 ≠ 撤回同意 —— 同意由 withdrawConsent 单独处理。
+   */
   deleteAllData() {
     this.clearUserData();
-    remove(KEYS.consent);
   }
 };
 

@@ -1,0 +1,10 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "TOS 对象存储后端：用户 / 进度 / 打卡（接口契约 §3）",
+  "main": "index.js",
+  "dependencies": {
+    "@open-dy/node-server-sdk": "^1.2.2",
+    "@volcengine/tos-sdk": "^2.0.0"
+  }
+}

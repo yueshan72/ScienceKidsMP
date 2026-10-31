@@ -113,7 +113,7 @@ ok('删除数据后年龄清空', Local.getAgeGroup() === null);
 ok('删除数据后进度清空', progress.get('rocket-1') === null);
 ok('删除数据后收藏清空', Local.getFavorites().length === 0);
 ok('删除数据后点赞清空', Local.getLikes().length === 0);
-ok('删除数据后同意记录也清空', Local.getConsent().granted === false && Local.getConsent().withdrawnAt === null);
+ok('删除数据后保留同意记录', Local.getConsent().granted === true && Local.getConsent().withdrawnAt === null);
 
 Local.grantConsent();
 Local.setAgeGroup('3-6');

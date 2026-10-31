@@ -8,16 +8,20 @@
 
 | 项 | 状态 |
 | --- | --- |
-| 文档 | ✅ 需求 / 计划 V1.2；**接口契约 V1.1（2026-10-17，云调用与 G1–G8 已关闭）** |
+| 文档 | ✅ 需求 / 计划 V1.2；**接口契约 V1.4（2026-10-27，云数据库审核通过，恢复原三函数主路线；TOS 备选）** |
 | 前端 | ✅ 首页 / 主题页 / 关卡页 / **视频播放页** / 我的；监护人同意 + 删除/更正/撤回入口 |
-| 云函数 | ✅ `user` / `progress` / `checkin` 已按抖音云写法实现（**待部署**） |
-| 测试 | ✅ 交互引擎 41 项 + 本地状态 46 项，全部通过（`node tests/run-all.js`） |
-| 当前阶段 | **M2 联调准备**（目标 2026-10-23） |
-| 下一里程碑 | **M2 = 2026-10-23** 前后端联调完成，功能可用 |
+| 数据层 | ✅ **本地优先 + 云端同步**（`cloud.mode='auto'`）；本地/云端双适配器；主路线文档型数据库 |
+| 云函数 | ✅ `user` / `progress` / `checkin` 已发布并启用；TOS 单函数 `api` 保留为备选 |
+| 测试 | ✅ 交互 41 + 本地状态 46 + 数据层 35 + TOS 后端 64 = **186 项全部通过**（`node tests/run-all.js`） |
+| 当前阶段 | **云数据库审核通过，切回原路线**（2026-10-27；待建 4 个集合与索引后真机验收） |
+| 下一里程碑 | **M3 = 2026-11-06**（内容补齐 + 演示打磨；老师已确认只要求课堂演示，M4 上线灰度不作硬性目标） |
 
-> 云环境未配置时，小程序走本地持久化数据，**可完整演示**；
-> 部署并填入 `app.js` 的 `envID`/`serviceID` 后自动切换到云函数。
-> 步骤见 [`docs/云开发接入指南.md`](docs/云开发接入指南.md)。
+> 主路线：`app.js` 已指向 `/user/index`、`/progress/index`、`/checkin/index`，
+> `cloud.mode='auto'`，数据同步到抖音云**文档型数据库**。
+> 集合建好前云端调用会失败并自动回落本地（`offline=true`），本地演示不受影响。
+> 建集合与索引见 [`docs/云开发接入指南.md`](docs/云开发接入指南.md) §4。
+> TOS 单函数 + 对象存储作为备选保留，见 [`docs/对象存储后端接入指南.md`](docs/对象存储后端接入指南.md)；
+> 数据层说明见 [`docs/数据层接口.md`](docs/数据层接口.md)。
 
 ## 关键日期
 
@@ -47,12 +51,14 @@ ScienceKidsMP/
 │   │   ├── video/            视频播放页（点赞 / 收藏 / 关联实验）
 │   │   └── mine/             我的（进度 / 打卡 / 收藏）
 │   ├── components/           自定义组件
-│   ├── utils/                工具（云函数调用封装等）
+│   ├── utils/                工具（数据层 / 云函数调用封装等）
+│   │   └── data-adapters/    local-adapter（兜底）/ cloud-adapter（云端）
 │   └── assets/               图片 / 音视频资源（sample.mp4 为 CC0 占位）
 ├── cloudfunctions/           抖音云开发云函数
-│   ├── user/                 登录 / 年龄 / 删除数据 / 撤回同意
-│   ├── progress/             闯关进度 / 星星 / 徽章
-│   ├── checkin/              打卡 / 连续天数
+│   ├── user/                 ✅ 主路线：登录 / 年龄 / 删除 / 撤回
+│   ├── progress/             ✅ 主路线：闯关进度 / 星星 / 徽章
+│   ├── checkin/              ✅ 主路线：打卡 / 连续天数
+│   ├── api/                  🟡 备选：TOS 后端（单函数承载三组 action）
 │   └── product/              精选联盟商品（V1.0 不部署）
 ├── tests/                    真机交互引擎测试（Node，无需依赖）
 └── prototypes/               原型 / 设计稿
@@ -60,26 +66,31 @@ ScienceKidsMP/
 
 ## 技术选型（已定稿）
 
-前端 **抖音小程序原生**（不用 Taro）｜后端 **抖音云开发 CloudBase**｜内容 **云存储 + CDN**｜电商 **精选联盟 + 小程序购物车**。
-理由见 `docs/开发计划书.md` 第 1 节。
+前端 **抖音小程序原生**（不用 Taro）｜数据层 **本地优先 + 抖音云文档型数据库**（TOS 备选）｜内容 **客户端静态资源**（正式素材后续补）｜电商 **精选联盟 + 小程序购物车**。
+理由与技术选型调整见 `docs/开发计划书.md` 第 1 节、`docs/数据层接口.md`、`docs/云开发接入指南.md`。
 
 ## 上手
 
 1. 用**抖音开发者工具**导入 `miniprogram/` 目录
 2. `miniprogram/project.config.json` 里的 `appid` 需替换为自己的小程序 AppID
-3. 云开发环境开通后，按 [`docs/云开发接入指南.md`](docs/云开发接入指南.md) 部署三个云函数，并在 `app.js` 填入 `envID` / `serviceID`，把 `cloud.enabled` 改为 `true`
-4. 前端调云函数的统一入口是 `miniprogram/utils/request.js`；页面经 `utils/data-service.js` 使用，云未配置时自动回落本地
+3. `app.js` 默认 `cloud.mode = 'auto'`，指向文档库三函数；只想本地演示时改成 `'local'`
+4. 云端使用前，按 [`docs/云开发接入指南.md`](docs/云开发接入指南.md) §4 建 `users`/`progress`/`checkins`/`badges` 集合与索引；TOS 备选路线见 [`docs/对象存储后端接入指南.md`](docs/对象存储后端接入指南.md)
+5. 数据层统一入口是 `miniprogram/utils/data-service.js`，页面不直接调 `request.js` 或适配器；接口定义见 [`docs/数据层接口.md`](docs/数据层接口.md)
 
 ### 跑测试
 
 ```bash
-node tests/run-all.js            # 一次跑完全部
-node tests/interaction.test.js   # 41 项：交互引擎
-node tests/local-state.test.js  # 46 项：本地状态 / 打卡 / 合规清理 / 点赞
+node tests/run-all.js             # 一次跑完全部：186 项
+node tests/interaction.test.js    # 41 项：交互引擎
+node tests/local-state.test.js    # 46 项：本地状态 / 打卡 / 合规清理 / 点赞
+node tests/data-service.test.js   # 35 项：本地优先 / 云端适配器 / 失败回落
+node tests/tos-api.test.js        # 64 项：TOS 后端 action / 徽章 / 打卡 / key 规则
 ```
 
 不需要安装任何依赖。交互引擎测试覆盖装配、坐标、点错宽容、重复点击、通关、重置、
 版本降级与「引擎不含关卡语义」；本地状态测试覆盖进度幂等、星级、徽章、连续打卡、
-收藏、删除数据与撤回同意。
+收藏、删除数据与撤回同意；数据层测试覆盖 local 模式不碰网络、auto 模式成功覆盖、
+失败保留本地、删除/撤回云端失败不清本地；TOS 后端测试用内存 store + 假 TOS client，
+覆盖登录、年龄、星级/徽章、分页、打卡、删除/撤回、存储故障与对象 key 规则。
 
 > ⚠️ **骨架说明**：本骨架是按《开发计划书》的技术选型和《需求文档》第 6 节信息架构搭的**占位结构**，页面内只有最小可运行代码。抖音小程序的 `project.config.json` 字段与云开发 SDK 的确切 API 以**抖音官方文档 / 开发者工具生成的结果**为准——建议用开发者工具新建一个空项目，把它的配置文件覆盖过来。

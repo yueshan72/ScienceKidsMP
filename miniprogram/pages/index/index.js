@@ -63,7 +63,18 @@ Page({
     }
 
     const age = app.globalData.ageGroup || Local.getAgeGroup();
-    if (age && age !== this.data.ageGroup) {
+    if (!age) {
+      /* 删除数据后回到首页：同意还在，但年龄段已被清空 → 重新选年龄 */
+      this.setData({
+        ageGroup: null,
+        ageLabel: '未选择',
+        showAgePicker: true,
+        contentList: [],
+        shopList: []
+      });
+      return;
+    }
+    if (age !== this.data.ageGroup) {
       this.applyAge(age, { persist: false });
     } else {
       this.refreshLists();

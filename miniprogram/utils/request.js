@@ -18,6 +18,8 @@
 
 'use strict';
 
+/* V1.4：主路线是文档型数据库的三个独立云函数（与 V1.1 契约一致）。
+   TOS 备选路线把三组接口合并为单函数 /api/index，切换时在 app.js 覆盖 paths 即可。 */
 const DEFAULT_PATHS = {
   user: '/user/index',
   progress: '/progress/index',
@@ -119,7 +121,9 @@ function call(name, action, payload) {
       init: {
         method: 'POST',
         header: { 'content-type': 'application/json' },
-        body: Object.assign({}, payload, { action: action }),
+        /* name + action：TOS 后端把三组接口合并成一个 api 函数，
+           靠 name 路由；旧的三个独立函数会忽略 name，互不影响。 */
+        body: Object.assign({}, payload, { name: name, action: action }),
         timeout: 60000 // ms
       },
       success: (res) => {

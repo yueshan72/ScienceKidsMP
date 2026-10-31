@@ -4,6 +4,7 @@
   "private": true,
   "description": "抖音云函数服务根依赖（在线编辑器/整包上传时用这一份）",
   "dependencies": {
-    "@open-dy/node-server-sdk": "^1.2.2"
+    "@open-dy/node-server-sdk": "^1.2.2",
+    "@volcengine/tos-sdk": "^2.0.0"
   }
 }

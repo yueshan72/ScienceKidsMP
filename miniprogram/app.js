@@ -9,16 +9,21 @@ App({
     openid: null,
     ageGroup: null, // '3-6' | '6-9' | '9-12'，null 表示首次进入需选择
 
-    /* 抖音云配置。
-     * 云环境开通后，把下面三项填上并把 enabled 改为 true，页面即自动切到云函数。
-     * 具体步骤见 docs/云开发接入指南.md。
-     * paths 的默认值需在开发者工具「复制小程序端调用示例」里核对一次。 */
+    /* 数据层配置（V1.4：云数据库审核通过，主路线恢复为文档型数据库三函数）。
+     *
+     * mode:
+     *   'local' —— 只读写手机本地存储，不发起网络请求（离线兜底）
+     *   'auto'  —— 本地优先 + 云端同步；当前指向原三个云函数（文档型数据库）
+     *
+     * 主路线（当前）：/user/index、/progress/index、/checkin/index + 云数据库。
+     * 备选路线：单函数 /api/index + 对象存储 TOS（代码与指南保留，未启用）。
+     * paths 的实际值需在开发者工具「复制小程序端调用示例」里核对一次。 */
     cloud: {
-      enabled: false,                // ⏳ 文档型数据库审批中；集合建好后改为 true
-      envID: 'env-dlAISn9Fkv',       // 抖音云控制台的环境 ID
+      mode: 'auto',                  // 'local' | 'auto'
+      envID: 'env-dIAlSn9Fkv',       // 抖音云控制台的环境 ID
       serviceID: '1mh9na5bu8gm2',    // 云函数服务的 serviceID（dev 环境）
       paths: {
-        user: '/user/index',         // 已由「如何调用」确认
+        user: '/user/index',         // 主路线：三个独立云函数
         progress: '/progress/index',
         checkin: '/checkin/index'
       }
@@ -29,9 +34,15 @@ App({
     /* 本地模式：从本地存储恢复年龄（撤回同意后会被清空） */
     this.globalData.ageGroup = Local.getAgeGroup();
 
-    /* 把云配置交给 request.js；enabled=false 时 request 会明确报「未配置」，
-       页面据此走本地数据，不会静默失败。 */
-    request.configure(this.globalData.cloud);
+    /* 把配置交给 request.js。
+       mode='local' 时 enabled=false，request 不会发起网络请求；
+       mode='auto' 时由 data-service 走「本地先行 + 云端同步」。 */
+    request.configure({
+      enabled: this.globalData.cloud.mode === 'auto',
+      envID: this.globalData.cloud.envID,
+      serviceID: this.globalData.cloud.serviceID,
+      paths: this.globalData.cloud.paths
+    });
   }
 
   /* 分龄写入统一走 utils/data-service.js（本地立即生效 + 云端异步同步），

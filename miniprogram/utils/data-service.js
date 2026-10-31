@@ -1,35 +1,56 @@
-/* utils/data-service.js —— 页面数据入口（云优先，本地兜底）
+/* utils/data-service.js —— 页面数据唯一入口（本地优先，可切换云端）
  *
- * 设计目的：
- *   1. 云环境未配置时（app.js cloud.enabled=false），页面照常跑本地演示；
- *   2. 云环境就绪后，只改 app.js 的配置，页面代码不再改动；
- *   3. 写操作先落本地镜像，云端失败时不丢演示数据；读操作仍以本地镜像展示，
- *      避免为演示引入异步加载态。
+ * V1.4（2026-10-27）：
+ *   云数据库体验权限已通过，主路线恢复为**文档型数据库三个云函数**；
+ *   TOS（对象存储）后端作为备选保留，切换时只改 app.js 的 paths。
+ *   - 默认/当前 cloud.mode = 'auto'：本地先写，再同步云端；
+ *   - 云端失败自动回落本地并标记 offline=true，不阻塞课堂演示；
+ *   - 页面只依赖本文件，不直接感知数据来自本地还是云端。
  *
- * 内容（视频 / 关卡）在 V1.0 是客户端静态数据：契约没有 content 云函数，
- * 且内容量固定为 3-4 条视频 + 2 个关卡。用户状态（进度/打卡/年龄）走云。
+ * 分层：
+ *   pages/*  →  utils/data-service.js（本文件，编排）
+ *                 ├─ data-adapters/local-adapter.js  本地实现（默认）
+ *                 └─ data-adapters/cloud-adapter.js  云端实现（保留）
+ *
+ * 写策略（两种模式一致）：
+ *   1. 先写本地镜像，保证演示/离线时不丢数据；
+ *   2. mode='auto' 时再调云端，成功用云端结果覆盖，失败标记 offline=true；
+ *   3. 删除 / 撤回同意是例外：云端失败时必须抛出，本地数据不能被清掉
+ *      （否则用户以为云端也删了，实际没有）。
+ *
+ * 读取策略：页面仍从 utils/local-state.js 读本地镜像（同步、无加载态）。
+ *   云端只负责写同步；未来需要跨设备拉取时，再在启动时补一次 syncDown。
+ *
+ * 数据层接口定义见 docs/数据层接口.md。
  */
 'use strict';
 
 const request = require('./request.js');
 const Local = require('./local-state.js');
-const mockProgress = require('./mock-progress.js');
+const localAdapter = require('./data-adapters/local-adapter.js');
+const cloudAdapter = require('./data-adapters/cloud-adapter.js');
 
+/** 当前是否启用云端同步（mode='auto' 且 envID/serviceID 都已配置） */
 function cloudEnabled() {
   return request.isEnabled();
 }
 
+/** 当前数据模式：'local' | 'auto'（供「我的」页或调试展示） */
+function mode() {
+  return cloudEnabled() ? 'auto' : 'local';
+}
+
 /** 设置 / 更正年龄：本地立即生效，云端异步同步 */
 async function setAgeGroup(ageGroup) {
-  Local.setAgeGroup(ageGroup);
-  if (!cloudEnabled()) return { ageGroup, offline: false };
+  const local = await localAdapter.setAgeGroup(ageGroup);
+  if (!cloudEnabled()) return Object.assign({}, local, { offline: false });
 
   try {
-    const r = await request.call('user', 'setAgeGroup', { ageGroup });
+    const r = await cloudAdapter.setAgeGroup(ageGroup);
     return Object.assign({}, r, { offline: false });
   } catch (e) {
     console.warn('[data-service] setAgeGroup cloud failed, local kept', e);
-    return { ageGroup, offline: true };
+    return Object.assign({}, local, { offline: true });
   }
 }
 
@@ -38,15 +59,11 @@ async function setAgeGroup(ageGroup) {
  * 契约 §3.2：星级与徽章由云函数判定，前端不可信。
  */
 async function completeLevel(levelId, wrongCount, topicId) {
-  const local = mockProgress.complete(levelId, wrongCount);
+  const local = await localAdapter.completeLevel(levelId, wrongCount, topicId);
   if (!cloudEnabled()) return Object.assign({}, local, { offline: false });
 
   try {
-    const r = await request.call('progress', 'complete', {
-      levelId,
-      topicId: topicId || 'space',
-      wrongCount: wrongCount || 0
-    });
+    const r = await cloudAdapter.completeLevel(levelId, wrongCount, topicId);
     return Object.assign({}, r, { offline: false });
   } catch (e) {
     console.warn('[data-service] completeLevel cloud failed, local kept', e);
@@ -56,11 +73,11 @@ async function completeLevel(levelId, wrongCount, topicId) {
 
 /** 今日打卡。本地先行，云端成功时以云端 streak 为准 */
 async function checkin() {
-  const local = Local.checkinToday();
+  const local = await localAdapter.checkin();
   if (!cloudEnabled()) return Object.assign({}, local, { offline: false });
 
   try {
-    const r = await request.call('checkin', 'checkin', {});
+    const r = await cloudAdapter.checkin();
     return Object.assign({}, r, { offline: false });
   } catch (e) {
     console.warn('[data-service] checkin cloud failed, local kept', e);
@@ -68,22 +85,26 @@ async function checkin() {
   }
 }
 
-/** 删除我的数据：云端成功后才清本地；云端失败则抛出，页面据此提示用户 */
+/**
+ * 删除我的数据：云端成功后才清本地；云端失败则抛出，页面据此提示用户。
+ * mode='local' 时直接清本地。
+ */
 async function deleteData() {
   if (cloudEnabled()) {
-    await request.call('user', 'deleteData', {});
+    await cloudAdapter.deleteData();
   }
-  Local.deleteAllData();
-  return { deleted: true };
+  return localAdapter.deleteData();
 }
 
-/** 撤回监护人同意：云端删除 + 本地清空并记录撤回时间 */
+/**
+ * 撤回监护人同意：云端删除 + 本地清空并记录撤回时间。
+ * 与 deleteData 相同，云端失败时不改本地状态。
+ */
 async function withdrawConsent() {
   if (cloudEnabled()) {
-    await request.call('user', 'withdrawConsent', {});
+    await cloudAdapter.withdrawConsent();
   }
-  Local.withdrawConsent();
-  return { withdrawn: true };
+  return localAdapter.withdrawConsent();
 }
 
 /** 连续打卡（本地镜像；云端的日历只在「我的」页需要时再拉，V1.0 先用本地） */
@@ -93,6 +114,7 @@ function getStreak() {
 
 module.exports = {
   cloudEnabled: cloudEnabled,
+  mode: mode,
   setAgeGroup: setAgeGroup,
   completeLevel: completeLevel,
   checkin: checkin,

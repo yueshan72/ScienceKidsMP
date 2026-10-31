@@ -177,8 +177,15 @@ async function onComplete(openid, params) {
 
 /** 该主题全部通关 → 发「太空探索者」徽章（幂等） */
 async function maybeAwardSpaceBadge(database, openid, topicId) {
-  const levelsRes = await database.collection('levels').where({ topicId }).get();
-  let total = rows(levelsRes).length;
+  /* levels 是可选集：未建集合时查询会抛错，不能让它阻断徽章发放。
+     此时回落到内置的 TOPIC_LEVEL_COUNT。 */
+  let total = 0;
+  try {
+    const levelsRes = await database.collection('levels').where({ topicId }).get();
+    total = rows(levelsRes).length;
+  } catch (e) {
+    console.warn('[progress] levels unavailable, fallback to TOPIC_LEVEL_COUNT', e);
+  }
   if (!total) total = TOPIC_LEVEL_COUNT[topicId] || 0;
   if (!total) return [];
 
