@@ -40,13 +40,39 @@ function mode() {
   return cloudEnabled() ? 'auto' : 'local';
 }
 
+/* 云端同步的超时上限。云端慢/卡住时不能拖住页面反馈：
+   本地已经写好，超时后按「离线」处理即可。 */
+const CLOUD_SYNC_TIMEOUT_MS = 6000;
+
+function withTimeout(promise, ms) {
+  return new Promise(function (resolve, reject) {
+    let settled = false;
+    const timer = setTimeout(function () {
+      if (settled) return;
+      settled = true;
+      reject({ code: 3001, message: '云端同步超时（本地已保存）' });
+    }, ms);
+    promise.then(function (value) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(value);
+    }, function (err) {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(err);
+    });
+  });
+}
+
 /** 设置 / 更正年龄：本地立即生效，云端异步同步 */
 async function setAgeGroup(ageGroup) {
   const local = await localAdapter.setAgeGroup(ageGroup);
   if (!cloudEnabled()) return Object.assign({}, local, { offline: false });
 
   try {
-    const r = await cloudAdapter.setAgeGroup(ageGroup);
+    const r = await withTimeout(cloudAdapter.setAgeGroup(ageGroup), CLOUD_SYNC_TIMEOUT_MS);
     return Object.assign({}, r, { offline: false });
   } catch (e) {
     console.warn('[data-service] setAgeGroup cloud failed, local kept', e);
@@ -57,17 +83,26 @@ async function setAgeGroup(ageGroup) {
 /**
  * 通关。本地幂等记录先行（保证演示闭环），云端判定后覆盖星星/徽章。
  * 契约 §3.2：星级与徽章由云函数判定，前端不可信。
+ *
+ * onLocal 可选：本地结果写好后就回调一次，页面可以立刻显示星星/徽章，
+ * 不必等云端（云端慢或挂起时，反馈也不会丢）。云端返回后页面再校正。
  */
-async function completeLevel(levelId, wrongCount, topicId) {
+async function completeLevel(levelId, wrongCount, topicId, onLocal) {
   const local = await localAdapter.completeLevel(levelId, wrongCount, topicId);
-  if (!cloudEnabled()) return Object.assign({}, local, { offline: false });
+  const localResult = Object.assign({}, local, { offline: false });
+
+  if (typeof onLocal === 'function') onLocal(localResult);
+  if (!cloudEnabled()) return localResult;
 
   try {
-    const r = await cloudAdapter.completeLevel(levelId, wrongCount, topicId);
+    const r = await withTimeout(
+      cloudAdapter.completeLevel(levelId, wrongCount, topicId),
+      CLOUD_SYNC_TIMEOUT_MS
+    );
     return Object.assign({}, r, { offline: false });
   } catch (e) {
     console.warn('[data-service] completeLevel cloud failed, local kept', e);
-    return Object.assign({}, local, { offline: true });
+    return Object.assign({}, localResult, { offline: true });
   }
 }
 
@@ -77,7 +112,7 @@ async function checkin() {
   if (!cloudEnabled()) return Object.assign({}, local, { offline: false });
 
   try {
-    const r = await cloudAdapter.checkin();
+    const r = await withTimeout(cloudAdapter.checkin(), CLOUD_SYNC_TIMEOUT_MS);
     return Object.assign({}, r, { offline: false });
   } catch (e) {
     console.warn('[data-service] checkin cloud failed, local kept', e);

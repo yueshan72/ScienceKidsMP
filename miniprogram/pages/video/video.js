@@ -11,6 +11,7 @@ const DEMO = require('../../utils/demo-data.js');
 const Local = require('../../utils/local-state.js');
 const Age = require('../../utils/age.js');
 const Format = require('../../utils/format.js');
+const LocalVideo = require('../../utils/local-video.js');
 
 Page({
   data: {
@@ -20,7 +21,6 @@ Page({
     durationText: '',
     mediaUrl: '',
     levelId: '',
-    isSample: false,
     fav: false,
     liked: false,
     shopList: []
@@ -41,9 +41,8 @@ Page({
       theme: Age.themeOf(age),
       content: content,
       durationText: Format.fmtDuration(content.duration),
-      mediaUrl: content.mediaUrl || '',
+      mediaUrl: LocalVideo.toPlayableUrl(content.mediaUrl || ''),
       levelId: content.levelId || '',
-      isSample: content.mediaUrl === '/assets/sample.mp4',
       fav: Local.isFavorite(content._id),
       liked: Local.isLiked(content._id),
       shopList: DEMO.shop.filter(function (p) {
@@ -77,7 +76,13 @@ Page({
     }
   },
 
-  onVideoError() {
-    tt.showToast({ title: '视频加载失败，请稍后重试', icon: 'none' });
+  onVideoError(e) {
+    const detail = (e && e.detail) || {};
+    console.error('[video] 播放失败', detail, 'src =', this.data.mediaUrl);
+    const msg = detail.errMsg || detail.message || '';
+    tt.showToast({
+      title: msg ? ('视频加载失败：' + msg) : '视频加载失败，请稍后重试',
+      icon: 'none'
+    });
   }
 });

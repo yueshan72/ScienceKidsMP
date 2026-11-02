@@ -95,15 +95,19 @@ async function run() {
   r = await call(store, 'user-1', 'progress', 'complete',
     { levelId: 'meteor-2', topicId: 'space', wrongCount: 1 });
   ok('1 次点错 = 2 星', r.data.stars === 2, String(r.data.stars));
-  ok('两关全通发徽章', (r.data.newBadges || []).indexOf('badge_space') !== -1);
+  ok('两关未全通不发徽章', (r.data.newBadges || []).length === 0);
+
+  r = await call(store, 'user-1', 'progress', 'complete',
+    { levelId: 'earth-3', topicId: 'space', wrongCount: 0 });
+  ok('三关全通发徽章', (r.data.newBadges || []).indexOf('badge_space') !== -1);
 
   r = await call(store, 'user-1', 'progress', 'getBadges');
   ok('徽章列表 1 个', r.data.list.length === 1);
   ok('徽章名正确', r.data.list[0].name === '太空探索者');
 
   r = await call(store, 'user-1', 'user', 'getProfile');
-  ok('档案 doneLevels=2', r.data.stats.doneLevels === 2, String(r.data.stats.doneLevels));
-  ok('档案 totalLevels=2', r.data.stats.totalLevels === 2, String(r.data.stats.totalLevels));
+  ok('档案 doneLevels=3', r.data.stats.doneLevels === 3, String(r.data.stats.doneLevels));
+  ok('档案 totalLevels=3', r.data.stats.totalLevels === 3, String(r.data.stats.totalLevels));
   ok('档案 badges=1', r.data.badges.length === 1);
 
   /* ================= 4. 进度列表 ================= */
@@ -112,8 +116,8 @@ async function run() {
   ok('缺 topicId → 1002', r.code === 1002);
 
   r = await call(store, 'user-1', 'progress', 'list', { topicId: 'space' });
-  ok('space 总数 2', r.data.total === 2, String(r.data.total));
-  ok('默认一页 2 条', r.data.list.length === 2);
+  ok('space 总数 3', r.data.total === 3, String(r.data.total));
+  ok('默认一页 3 条', r.data.list.length === 3);
   ok('hasMore=false', r.data.hasMore === false);
 
   r = await call(store, 'user-1', 'progress', 'list', { topicId: 'space', pageSize: 1 });

@@ -18,6 +18,10 @@ const fail = (code, message) => ({ code, message, data: null });
 
 const ALLOWED_AGE = ['3-6', '6-9', '9-12'];
 
+/* V1.0 太空主题关卡数；levels 集合为空时的兜底（与 progress 云函数保持一致）。
+   内容仍由客户端静态维护（契约 §8.3）。 */
+const TOPIC_LEVEL_COUNT = { space: 3 };
+
 module.exports = async function (params, context) {
   params = params || {};
   const action = params.action;
@@ -124,12 +128,17 @@ async function onGetProfile(openid) {
     const progressRes = await database.collection('progress').where({ openid, status: 'done' }).count();
     const checkinRes = await database.collection('checkins').where({ openid }).count();
 
-    /* levels 是可选集合（V1.0 内容静态）；缺失时不应让整个档案失败 */
+    /* levels 是可选集合（V1.0 内容静态）；缺失或为空时不应让整个档案失败，
+       回落到内置的关卡数（与 progress 云函数同一口径）。 */
     let totalLevels = 0;
     try {
       totalLevels = countOf(await database.collection('levels').count());
     } catch (e) {
       totalLevels = 0;
+    }
+    if (!totalLevels) {
+      totalLevels = Object.keys(TOPIC_LEVEL_COUNT).reduce(
+        (n, k) => n + (TOPIC_LEVEL_COUNT[k] || 0), 0);
     }
 
     /* 连续天数按服务器日期计算 */

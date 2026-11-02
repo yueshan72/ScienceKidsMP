@@ -16,7 +16,7 @@ const MAX_PAGE_SIZE = 50;
 
 /* V1.0 太空主题的关卡数（内容在客户端静态维护，尚未入 levels 集合时的兜底）。
    若 levels 集合已有数据，以集合计数为准。 */
-const TOPIC_LEVEL_COUNT = { space: 2 };
+const TOPIC_LEVEL_COUNT = { space: 3 };
 
 const BADGE_SPACE = {
   badgeId: 'badge_space',

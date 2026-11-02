@@ -49,7 +49,7 @@ ok('设置后可读回', Local.getAgeGroup() === '6-9');
 
 /* ================= 2. 通关与星级 ================= */
 console.log('\n[2] 通关与星级');
-const lvIds = ['rocket-1', 'meteor-2'];
+const lvIds = ['rocket-1', 'meteor-2', 'earth-3'];
 ok('初始未通关', progress.get('rocket-1') === null);
 const r1 = progress.complete('rocket-1', 0);
 ok('首次通关 isFirstComplete=true', r1.isFirstComplete === true);
@@ -64,7 +64,10 @@ ok('重复通关不改星星', r1b.stars === 3, String(r1b.stars));
 
 const r2 = progress.complete('meteor-2', 1);
 ok('1 次点错 = 2 星', r2.stars === 2, String(r2.stars));
-ok('两关全通发徽章', (r2.newBadges || []).indexOf('badge_space') !== -1);
+ok('两关未全通不发徽章', (r2.newBadges || []).length === 0);
+
+const r3 = progress.complete('earth-3', 0);
+ok('三关全通发徽章', (r3.newBadges || []).indexOf('badge_space') !== -1);
 ok('徽章列表有 1 个', progress.badges().length === 1);
 ok('徽章名正确', progress.badges()[0].name === '太空探索者');
 ok('重复发徽章幂等', Local.awardBadge(Local.BADGE_SPACE) === false && progress.badges().length === 1);

@@ -13,27 +13,30 @@ var DEMO = {
   contents: [
     {
       _id: 'c1', topicId: 'space', type: 'video',
-      title: '火箭为什么能飞上天？', ageGroup: '3-6', duration: 95,
+      title: '火箭为什么能飞上天？', ageGroup: '3-6', duration: 10,
       adProduct: true,
-      /* V1.0 用 CC0 占位视频验证播放链路；正式内容由团队替换。
-         大文件请改用云存储 + CDN，避免超出小程序包体限制。 */
-      mediaUrl: '/assets/sample.mp4',
+      /* 测试片源：由用户提供的 1 分钟视频切分为 10 秒片段。
+         正式内容由团队替换；大文件请改用云存储 + CDN，避免超出小程序包体限制。 */
+      mediaUrl: '/assets/videos/rocket.mp4',
       levelId: 'rocket-1'
     },
     {
       _id: 'c2', topicId: 'space', type: 'video',
-      title: '月亮为什么会变形状？', ageGroup: '3-6', duration: 88,
-      adProduct: false
+      title: '月亮为什么会变形状？', ageGroup: '3-6', duration: 10,
+      adProduct: false,
+      mediaUrl: '/assets/videos/moon.mp4'
     },
     {
       _id: 'c3', topicId: 'space', type: 'video',
-      title: '太空里为什么会飘起来？', ageGroup: '6-9', duration: 120,
-      adProduct: true
+      title: '太空里为什么会飘起来？', ageGroup: '6-9', duration: 10,
+      adProduct: true,
+      mediaUrl: '/assets/videos/float.mp4'
     },
     {
       _id: 'c4', topicId: 'space', type: 'video',
-      title: '火星上有没有外星人？', ageGroup: '6-9', duration: 132,
+      title: '火星上有没有外星人？', ageGroup: '6-9', duration: 10,
       adProduct: false,
+      mediaUrl: '/assets/videos/mars.mp4',
       /* 《需求文档》§9.2：争议性话题须标注「科学假设 / 未定论」 */
       disputed: true
     },
@@ -131,6 +134,39 @@ var DEMO = {
             { id: 'n1', label: '月亮', icon: '🌕', x: 0.50, y: 0.88, isCorrect: false }
           ],
           requiredHits: 2      /* ← 与第 1 关不同：要连中两个 */
+        }
+      }
+    },
+
+    /* 第 3 关：同样是 click 类型，只加数据、不加引擎代码。
+       用来满足需求文档「3-5 个互动关卡」的下限。 */
+    'earth-3': {
+      _id: 'earth-3',
+      topicId: 'space',
+      name: '寻找地球',
+      sciencePoint: '太阳系行星识别',
+      order: 3,
+      ageGroup: '6-9',
+
+      scene: {
+        key: 'solar',
+        deco: [{ icon: '☀️', x: 0.5, y: 0.22, anim: 'none', rotate: 0 }]
+      },
+
+      interactionConfig: {
+        type: 'click',
+        version: 1,
+        prompt: '在行星里找到地球，点一下它！',
+        successText: '找到地球啦！',
+        failText: '那不是地球，再找找～',
+        props: {
+          targets: [
+            { id: 'e1', label: '地球', icon: '🌍', x: 0.50, y: 0.72, isCorrect: true },
+            { id: 'e2', label: '火星', icon: '🔴', x: 0.22, y: 0.60, isCorrect: false },
+            { id: 'e3', label: '木星', icon: '🪐', x: 0.78, y: 0.58, isCorrect: false },
+            { id: 'e4', label: '月球', icon: '🌕', x: 0.72, y: 0.86, isCorrect: false }
+          ],
+          requiredHits: 1
         }
       }
     }

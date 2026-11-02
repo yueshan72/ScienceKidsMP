@@ -124,7 +124,15 @@ Page({
     dataService.completeLevel(
       this.level._id,
       this.it.wrongCount,
-      this.level.topicId
+      this.level.topicId,
+      /* 本地结果先显示：云端慢/卡住时，星星反馈不能等 */
+      (local) => {
+        if (seq !== this._settleSeq) return;
+        this.setData({
+          reward: { starsText: Format.starsText(local.stars) },
+          showBadge: (local.newBadges || []).length > 0
+        });
+      }
     ).then((d) => {
       if (seq !== this._settleSeq) return;
       this.setData({

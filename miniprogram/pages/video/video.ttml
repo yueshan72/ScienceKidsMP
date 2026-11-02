@@ -19,7 +19,7 @@
         <view tt:else class="video-placeholder">
           <text class="ph-icon">🎬</text>
           <text class="ph-title">视频素材准备中</text>
-          <text class="ph-tip">团队补上 3-4 条短视频后即可播放</text>
+          <text class="ph-tip">该内容暂无视频素材，先看看其他内容吧</text>
         </view>
       </view>
 
@@ -34,11 +34,6 @@
       <!-- 《需求文档》§9.2：争议性话题须标注「科学假设 / 未定论」 -->
       <view tt:if="{{content.disputed}}" class="disclaimer">
         ⚠️ 这一集涉及科学假设，尚无定论，和孩子一起讨论看看。
-      </view>
-
-      <!-- 占位素材说明：避免把示例视频误当正式内容 -->
-      <view tt:if="{{isSample}}" class="disclaimer">
-        🎬 当前播放的是 CC0 占位素材，用于验证播放链路；正式太空主题视频待团队替换。
       </view>
 
       <!-- 点赞 / 收藏（V1.0 仅本地） -->

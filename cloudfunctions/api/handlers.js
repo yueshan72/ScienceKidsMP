@@ -21,7 +21,7 @@ const ALLOWED_AGE = ['3-6', '6-9', '9-12'];
 
 /* V1.0 太空主题关卡数；与旧 progress 云函数的兜底常量保持一致。
    内容仍由客户端静态维护（契约 §8），这里只用于徽章与统计。 */
-const TOPIC_LEVEL_COUNT = { space: 2 };
+const TOPIC_LEVEL_COUNT = { space: 3 };
 
 const BADGE_SPACE = {
   badgeId: 'badge_space',
