@@ -29,17 +29,49 @@
       -->
       <view class="stage scene-{{sceneKey}} {{stageClass}} {{shakeClass}}">
 
-        <!-- 环境星野：让舞台始终有深空层次，不参与交互 -->
+        <!-- 常态舞台也是深空场景：星云 + 网格 + 星点，不参与交互 -->
+        <view class="fx-nebula fx-nebula-a"></view>
+        <view class="fx-nebula fx-nebula-b"></view>
+        <view tt:for="{{stageGrid}}" tt:key="key"
+              class="fx-grid-line {{item.cls}}" style="{{item.style}}"></view>
         <view class="stage-stars">
           <view tt:for="{{stars}}" tt:key="key" class="stage-star" style="{{item.style}}"></view>
         </view>
 
-        <!-- 场景装饰物。纯展示，不可点。 -->
+        <!-- 场景装饰物。纯展示，不可点。矢量版由 KK 风格视图绘制。 -->
         <view class="stage-deco anim-{{item.anim}}"
               tt:for="{{deco}}"
               tt:key="id"
               style="{{item.wrapStyle}}">
-          <view class="stage-deco-inner" style="{{item.rotStyle}}">{{item.icon}}</view>
+          <view class="stage-deco-inner" style="{{item.rotStyle}}">
+            <view tt:if="{{item.visual === 'rocket'}}" class="fx-art fx-art--rocket">
+              <view class="rk-trail"></view>
+              <view class="rk-glow"></view>
+              <view class="rk-body">
+                <view class="rk-shine"></view>
+                <view class="rk-window"></view>
+              </view>
+              <view class="rk-nose"></view>
+              <view class="rk-fin rk-fin-l"></view>
+              <view class="rk-fin rk-fin-r"></view>
+              <view class="rk-flame"><view class="rk-flame-inner"></view></view>
+            </view>
+            <view tt:if="{{item.visual === 'moon'}}" class="fx-art fx-art--moon">
+              <view class="mn-shadow"></view>
+              <view class="mn-shine"></view>
+              <view class="mn-crater mn-c1"></view>
+              <view class="mn-crater mn-c2"></view>
+              <view class="mn-crater mn-c3"></view>
+            </view>
+            <view tt:if="{{item.visual === 'sun'}}" class="fx-art fx-art--sun">
+              <view class="sun-ray sun-ray-1"></view>
+              <view class="sun-ray sun-ray-2"></view>
+              <view class="sun-ray sun-ray-3"></view>
+              <view class="sun-ray sun-ray-4"></view>
+              <view class="sun-core"></view>
+            </view>
+            <text tt:if="{{!item.visual}}">{{item.icon}}</text>
+          </view>
         </view>
 
         <!-- 撞击留下的坑：动画前就渲染，靠 delay 在撞击时刻出现，之后一直保留 -->
@@ -52,8 +84,23 @@
               data-id="{{item.id}}"
               style="{{item.styleStr}}"
               bindtap="onTapTarget">
-          <text tt:if="{{item.icon}}" class="target-icon">{{item.icon}}</text>
-          <text class="target-label">{{item.label}}</text>
+          <view class="target-icon-wrap">
+            <view tt:if="{{item.visual === 'earth'}}" class="tgt-art tgt-earth">
+              <view class="tgt-earth-land"></view>
+            </view>
+            <view tt:if="{{item.visual === 'mars'}}" class="tgt-art tgt-mars"></view>
+            <view tt:if="{{item.visual === 'jupiter'}}" class="tgt-art tgt-jupiter">
+              <view class="tgt-jupiter-band"></view>
+            </view>
+            <view tt:if="{{item.visual === 'moon'}}" class="tgt-art tgt-moon"></view>
+            <view tt:if="{{item.visual === 'comet'}}" class="tgt-art tgt-comet">
+              <view class="tgt-comet-tail"></view>
+              <view class="tgt-comet-core"></view>
+            </view>
+            <view tt:if="{{item.visual === 'fire'}}" class="tgt-art tgt-fire"></view>
+            <text tt:if="{{item.visual === 'star'}}" class="tgt-star">★</text>
+            <text tt:if="{{!item.visual && item.icon}}" class="target-icon">{{item.icon}}</text>
+          </view>
         </view>
 
         <!-- 失败提示（缺口 G3：1 秒瞬时提示，随后自动消失） -->

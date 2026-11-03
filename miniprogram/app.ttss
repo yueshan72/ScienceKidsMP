@@ -108,6 +108,21 @@ page {
   --c-moon-shadow: rgba(60, 30, 10, .45);
   --c-moon-glow: rgba(255, 220, 120, .35);
 
+  /* 常态舞台（跨主题固定深空） */
+  --c-stage-rocket: #1A0B3D;
+  --c-stage-meteor: #14082F;
+  --c-stage-solar: #1D0A45;
+  --c-chip-bg: rgba(20, 10, 50, .7);
+  --c-chip-border: rgba(120, 200, 255, .32);
+  --c-chip-text: #FFFFFF;
+  --c-chip-shadow: 0 6rpx 22rpx rgba(0, 0, 0, .35);
+  --c-mars: #E5544B;
+  --c-jupiter: #E0B97A;
+  --c-sun-1: #FFF3A0;
+  --c-sun-2: #FFD166;
+  --c-sun-3: #FF8A00;
+  --c-sun-ray: rgba(255, 209, 102, .5);
+
   background-color: var(--c-bg);
   color: var(--c-text);
   font-size: 28rpx;

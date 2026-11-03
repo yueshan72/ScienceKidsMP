@@ -34,7 +34,7 @@ function cfg() {
     failText: '这个不对哦',
     props: {
       targets: [
-        { id: 'a', label: 'A', icon: '🅰', x: 0.2, y: 0.2, isCorrect: true },
+        { id: 'a', label: 'A', icon: '🅰', visual: 'earth', x: 0.2, y: 0.2, isCorrect: true },
         { id: 'b', label: 'B', x: 0.8, y: 0.2, isCorrect: true },
         { id: 'x', label: 'X', x: 0.5, y: 0.6, isCorrect: false }
       ],
@@ -60,6 +60,8 @@ ok('requiredHits 读入（2）', st.need === 2, '实际 ' + st.need);
 ok('初始 hits / wrongCount = 0', st.hits === 0 && st.wrongCount === 0);
 ok('目标全部生成（3 个）', st.targets.length === 3, '实际 ' + st.targets.length);
 ok('target 保留表现层字段', byId(st, 'a').label === 'A' && byId(st, 'a').icon === '🅰');
+ok('target 透传 visual（页面渲染矢量小图标）',
+  byId(st, 'a').visual === 'earth' && byId(st, 'b').visual === '');
 ok('target 初始未命中', st.targets.every((t) => t.hit === false && t.wrong === false));
 
 /* ================= 2. 坐标（G2：中心点，0~1 归一化） ================= */

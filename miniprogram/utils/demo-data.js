@@ -84,7 +84,11 @@ var DEMO = {
         /* rotate：emoji 自带朝向未必是你要的。🚀 默认朝右上 45°，
            转 -45° 才是竖直向上。不填则为 0。
            anim 不再承担通关动画，统一由 successFx 接管。 */
-        deco: [{ id: 'rocket', icon: '🚀', x: 0.5, y: 0.55, anim: 'none', rotate: -45 }],
+        /* visual：常态舞台用 CSS 矢量图；rotate=0 因为矢量火箭本身朝上 */
+        deco: [{
+          id: 'rocket', icon: '🚀', x: 0.5, y: 0.55,
+          anim: 'float', rotate: 0, visual: 'rocket'
+        }],
         successFx: {
           version: 1,
           play: 'always',
@@ -118,9 +122,9 @@ var DEMO = {
              而 drag 的 draggable 却有）。建议补齐并与 drag 对齐。
              坐标 x/y 是 0~1 归一化的【中心点】—— 缺口 G2 的决议。 */
           targets: [
-            { id: 't1', label: '点火按钮', icon: '🔥', x: 0.50, y: 0.80, isCorrect: true },
-            { id: 't2', label: '小星星', icon: '✨', x: 0.24, y: 0.26, isCorrect: false },
-            { id: 't3', label: '小星星', icon: '✨', x: 0.76, y: 0.20, isCorrect: false }
+            { id: 't1', label: '点火按钮', icon: '🔥', visual: 'fire', x: 0.50, y: 0.80, isCorrect: true },
+            { id: 't2', label: '小星星', icon: '✨', visual: 'star', x: 0.24, y: 0.26, isCorrect: false },
+            { id: 't3', label: '小星星', icon: '✨', visual: 'star', x: 0.76, y: 0.20, isCorrect: false }
           ],
           requiredHits: 1
         }
@@ -139,7 +143,10 @@ var DEMO = {
 
       scene: {
         key: 'meteor',
-        deco: [{ id: 'moon', icon: '🌕', x: 0.5, y: 0.60, anim: 'none', rotate: 0 }],
+        deco: [{
+          id: 'moon', icon: '🌕', x: 0.5, y: 0.60,
+          anim: 'float', rotate: 0, visual: 'moon'
+        }],
         successFx: {
           version: 1,
           play: 'always',
@@ -186,9 +193,9 @@ var DEMO = {
         failText: '那是月亮，不是陨石哦～',
         props: {
           targets: [
-            { id: 'm1', label: '陨石', icon: '☄️', x: 0.24, y: 0.22, isCorrect: true },
-            { id: 'm2', label: '陨石', icon: '☄️', x: 0.76, y: 0.32, isCorrect: true },
-            { id: 'n1', label: '月亮', icon: '🌕', x: 0.50, y: 0.88, isCorrect: false }
+            { id: 'm1', label: '陨石', icon: '☄️', visual: 'comet', x: 0.24, y: 0.22, isCorrect: true },
+            { id: 'm2', label: '陨石', icon: '☄️', visual: 'comet', x: 0.76, y: 0.32, isCorrect: true },
+            { id: 'n1', label: '月亮', icon: '🌕', visual: 'moon', x: 0.50, y: 0.88, isCorrect: false }
           ],
           requiredHits: 2      /* ← 与第 1 关不同：要连中两个 */
         }
@@ -207,7 +214,10 @@ var DEMO = {
 
       scene: {
         key: 'solar',
-        deco: [{ id: 'sun', icon: '☀️', x: 0.5, y: 0.22, anim: 'none', rotate: 0 }],
+        deco: [{
+          id: 'sun', icon: '☀️', x: 0.5, y: 0.22,
+          anim: 'float', rotate: 0, visual: 'sun'
+        }],
         successFx: {
           version: 1,
           play: 'always',
@@ -235,10 +245,10 @@ var DEMO = {
         failText: '那不是地球，再找找～',
         props: {
           targets: [
-            { id: 'e1', label: '地球', icon: '🌍', x: 0.50, y: 0.72, isCorrect: true },
-            { id: 'e2', label: '火星', icon: '🔴', x: 0.22, y: 0.60, isCorrect: false },
-            { id: 'e3', label: '木星', icon: '🪐', x: 0.78, y: 0.58, isCorrect: false },
-            { id: 'e4', label: '月球', icon: '🌕', x: 0.72, y: 0.86, isCorrect: false }
+            { id: 'e1', label: '地球', icon: '🌍', visual: 'earth', x: 0.50, y: 0.72, isCorrect: true },
+            { id: 'e2', label: '火星', icon: '🔴', visual: 'mars', x: 0.22, y: 0.60, isCorrect: false },
+            { id: 'e3', label: '木星', icon: '🪐', visual: 'jupiter', x: 0.78, y: 0.58, isCorrect: false },
+            { id: 'e4', label: '月球', icon: '🌕', visual: 'moon', x: 0.72, y: 0.86, isCorrect: false }
           ],
           requiredHits: 1
         }

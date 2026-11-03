@@ -36,6 +36,7 @@ Page({
     successText: '',
     fx: null,
     stars: [],
+    stageGrid: [],
     craters: [],
     shakeClass: ''
   },
@@ -107,6 +108,7 @@ Page({
       successText: '',
       fx: null,
       stars: buildStars(26),
+      stageGrid: buildStageGrid(),
       craters: [],
       shakeClass: ''
     }, () => this.measureStage());
@@ -403,6 +405,26 @@ function getWindowSize() {
   }
 }
 
+/** 常态舞台的深空网格：11 条竖线 + 7 条横线，和成功动画的网格同款 */
+function buildStageGrid() {
+  const out = [];
+  for (let i = 1; i < 12; i++) {
+    out.push({
+      key: 'gv' + i,
+      cls: 'fx-grid-line fx-grid-v',
+      style: 'left:' + (Math.round(i / 12 * 10000) / 100) + '%;'
+    });
+  }
+  for (let i = 1; i < 8; i++) {
+    out.push({
+      key: 'gh' + i,
+      cls: 'fx-grid-line fx-grid-h',
+      style: 'top:' + (Math.round(i / 8 * 10000) / 100) + '%;'
+    });
+  }
+  return out;
+}
+
 /** 舞台环境星野：位置/大小/闪烁节奏都是确定的，每次进入同一关观感一致 */
 function buildStars(count) {
   function rand(seed) {
@@ -439,6 +461,7 @@ function buildDeco(scene) {
     return {
       id: d.id || ('deco-' + i),
       icon: d.icon,
+      visual: d.visual || '',
       anim: d.anim || 'none',
       wrapStyle: 'left:' + (d.x * 100) + '%;top:' + (d.y * 100) + '%;',
       rotStyle: 'transform: rotate(' + (d.rotate || 0) + 'deg);'

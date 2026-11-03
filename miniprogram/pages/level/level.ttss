@@ -28,15 +28,18 @@
   position: relative;
   height: 640rpx;
   margin-bottom: var(--sp-4);
-  background-color: var(--c-surface);
+  background-color: var(--c-fx-space);
   border-radius: var(--radius-card);
   overflow: hidden;
+
+  /* 舞台内的 token 一律走深空调色，不跟页面暖色主题走 */
+  --c-star: var(--c-fx-star);
 }
 
-/* 场景底色。class 驱动而非属性选择器 —— TTSS 对 [data-*] 的支持没把握。 */
-.scene-rocket { background-color: var(--c-scene-rocket); }
-.scene-meteor { background-color: var(--c-scene-meteor); }
-.scene-solar { background-color: var(--c-scene-solar); }
+/* 场景底色：三关都是深紫，只有细微差别。class 驱动，便于加关卡。 */
+.scene-rocket { background-color: var(--c-stage-rocket); }
+.scene-meteor { background-color: var(--c-stage-meteor); }
+.scene-solar { background-color: var(--c-stage-solar); }
 
 /* 场景装饰物。外层只管定位，内层才旋转 —— 否则内层的 rotation
    会和升空动画的 transform 互相覆盖。 */
@@ -50,6 +53,27 @@
 
 .stage-deco-inner {
   display: inline-block;
+}
+
+/* 常态装饰物轻微浮动；矢量火箭不显示尾焰（尾焰只属于成功动画） */
+.anim-float .stage-deco-inner {
+  animation: deco-float 3200ms ease-in-out infinite alternate;
+}
+
+.stage-deco .rk-trail,
+.stage-deco .rk-flame {
+  display: none;
+}
+
+/* 成功动画里的月球用 100% 填满道具容器；舞台装饰没有容器尺寸，需显式给 */
+.stage-deco .fx-art--moon {
+  width: 128rpx;
+  height: 128rpx;
+}
+
+@keyframes deco-float {
+  from { transform: translateY(-7rpx); }
+  to   { transform: translateY(7rpx); }
 }
 
 /* ==================== 环境星野 ====================
@@ -108,30 +132,147 @@
  * 坐标由引擎写成 left/top 百分比，且是【中心点】语义（缺口 G2 的决议），
  * 所以这里用 translate(-50%,-50%) 把元素中心对到坐标上。 */
 
+/* 目标只剩图标本身：没有胶囊、没有描边、没有文字标签。
+   96rpx 的透明点击区保证触摸尺寸，视觉上是「漂浮的天体」。 */
 .stage-target {
   position: absolute;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: var(--touch-min);
-  min-height: var(--touch-min);
-  padding: var(--sp-2) var(--sp-3);
+  width: 96rpx;
+  height: 96rpx;
+  padding: 0;
   transform: translate(-50%, -50%);
-  background-color: var(--c-surface);
-  border: 3rpx solid var(--c-line);
-  border-radius: var(--radius-pill);
-  box-shadow: var(--shadow-card);
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  color: var(--c-chip-text);
   font-size: var(--fs-base);
-  white-space: nowrap;     /* 目标靠近舞台边缘时标签不许折行 */
 }
 
 .target-icon {
-  font-size: 44rpx;
+  font-size: 64rpx;
   line-height: 1;
 }
 
-.target-label {
-  margin-left: var(--sp-1);
+.target-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  flex-shrink: 0;
+}
+
+/* 点错时给图标一个红色光晕，不再依赖胶囊描边 */
+.stage-target.is-wrong .target-icon-wrap {
+  border-radius: 50%;
+  box-shadow: 0 0 24rpx var(--c-warn);
+}
+
+/* 目标小图标：64rpx 的扁平矢量球/火焰/星星 */
+.tgt-art {
+  position: relative;
+  width: 64rpx;
+  height: 64rpx;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.tgt-earth {
+  background-color: var(--c-earth-ocean-2);
+  background-image: radial-gradient(circle at 35% 30%,
+    var(--c-earth-ocean-1) 0%,
+    var(--c-earth-ocean-2) 60%,
+    var(--c-earth-ocean-3) 100%);
+  box-shadow: 0 0 18rpx var(--c-earth-glow);
+}
+
+.tgt-earth-land {
+  position: absolute;
+  left: 12rpx;
+  top: 26rpx;
+  width: 28rpx;
+  height: 24rpx;
+  border-radius: 60% 40% 55% 45% / 50% 60% 40% 50%;
+  background-color: var(--c-earth-land);
+  transform: rotate(-18deg);
+}
+
+.tgt-mars {
+  background-color: var(--c-mars);
+  box-shadow: inset -8rpx -6rpx 14rpx var(--c-moon-shadow);
+}
+
+.tgt-jupiter {
+  background-color: var(--c-jupiter);
+  box-shadow: inset -8rpx -6rpx 14rpx var(--c-moon-shadow);
+}
+
+.tgt-jupiter-band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 26rpx;
+  height: 10rpx;
+  background-color: var(--c-moon-shadow);
+  opacity: .5;
+}
+
+.tgt-moon {
+  background-color: var(--c-moon-2);
+  box-shadow: inset -8rpx -6rpx 14rpx var(--c-moon-shadow),
+    0 0 14rpx var(--c-moon-glow);
+}
+
+.tgt-comet {
+  width: 64rpx;
+  height: 64rpx;
+  overflow: visible;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+.tgt-comet-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 36rpx;
+  height: 36rpx;
+  margin: -18rpx 0 0 -18rpx;
+  border-radius: 50%;
+  background-color: var(--c-comet-1);
+  box-shadow: 0 0 20rpx 6rpx var(--c-comet-2);
+}
+
+.tgt-comet-tail {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12rpx;
+  height: 44rpx;
+  margin-left: -6rpx;
+  margin-top: -44rpx;
+  border-radius: 999rpx;
+  background-color: var(--c-comet-3);
+  opacity: .8;
+  transform: rotate(35deg);
+  transform-origin: 50% 100%;
+}
+
+.tgt-fire {
+  width: 48rpx;
+  height: 60rpx;
+  border-radius: 50% 50% 50% 50% / 20% 20% 80% 80%;
+  background-color: var(--c-rocket-3);
+  box-shadow: 0 0 18rpx var(--c-rocket-3);
+}
+
+.tgt-star {
+  color: var(--c-gold);
+  font-size: 64rpx;
+  line-height: 1;
+  text-shadow: 0 0 16rpx var(--c-gold);
 }
 
 /* 已点中的目标置灰且不可再点 —— 缺口 G4 的决议：
@@ -164,10 +305,11 @@
   bottom: var(--sp-4);
   transform: translateX(-50%);
   padding: var(--sp-2) var(--sp-4);
-  background-color: var(--c-surface);
+  background-color: var(--c-chip-bg);
   border: 3rpx solid var(--c-warn);
   border-radius: var(--radius-pill);
-  color: var(--c-warn);
+  box-shadow: var(--c-chip-shadow);
+  color: var(--c-chip-text);
   font-size: var(--fs-sm);
   white-space: nowrap;
 }
@@ -774,6 +916,46 @@
 .mn-c1 { left: 30rpx; top: 46rpx; width: 30rpx; height: 26rpx; }
 .mn-c2 { left: 68rpx; top: 28rpx; width: 22rpx; height: 20rpx; }
 .mn-c3 { left: 54rpx; top: 82rpx; width: 34rpx; height: 26rpx; }
+
+/* ---------------- 矢量太阳 ---------------- */
+
+.fx-art--sun {
+  width: 128rpx;
+  height: 128rpx;
+}
+
+.sun-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 104rpx;
+  height: 104rpx;
+  margin: -52rpx 0 0 -52rpx;
+  border-radius: 50%;
+  background-color: var(--c-sun-2);
+  background-image: radial-gradient(circle at 35% 30%,
+    var(--c-sun-1) 0%,
+    var(--c-sun-2) 55%,
+    var(--c-sun-3) 100%);
+  box-shadow: 0 0 50rpx var(--c-sun-2);
+}
+
+.sun-ray {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8rpx;
+  height: 176rpx;
+  margin-left: -4rpx;
+  margin-top: -88rpx;
+  border-radius: 999rpx;
+  background-color: var(--c-sun-ray);
+}
+
+.sun-ray-1 { transform: rotate(0deg); }
+.sun-ray-2 { transform: rotate(45deg); }
+.sun-ray-3 { transform: rotate(90deg); }
+.sun-ray-4 { transform: rotate(135deg); }
 
 /* ---------------- 撞击闪光 ---------------- */
 

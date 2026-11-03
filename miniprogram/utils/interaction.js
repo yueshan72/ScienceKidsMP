@@ -46,6 +46,8 @@ function initClick(config) {
         id: t.id,
         label: t.label || '',
         icon: t.icon || '',
+        /* 表现层字段：页面据此渲染矢量小图标；引擎不解释、不参与判定 */
+        visual: t.visual || '',
         isCorrect: !!t.isCorrect,
         /* 坐标由归一化值转成百分比字符串，交给 ttml 的内联 style。
            中心点语义 → 样式里配了 transform: translate(-50%,-50%) */
