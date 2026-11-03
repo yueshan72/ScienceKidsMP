@@ -62,6 +62,51 @@ page {
   /* 关卡场景底色（每关一套，随主题变） */
   --c-scene-rocket: #0E1638;
   --c-scene-meteor: #1A1A22;
+  --c-scene-solar: #101A3A;
+
+  /* 成功动画 / 环境粒子（深空默认） */
+  --c-star: rgba(255, 255, 255, .72);
+  --c-smoke: rgba(220, 228, 255, .34);
+  --c-spark: rgba(255, 225, 150, .9);
+  --c-dust: rgba(255, 209, 102, .55);
+  --c-streak: rgba(255, 255, 255, .35);
+  --c-halo: rgba(78, 161, 255, .26);
+  --c-halo-glow: rgba(78, 161, 255, .55);
+  --c-halo-space: rgba(78, 161, 255, .24);
+  --c-halo-space-glow: rgba(78, 161, 255, .6);
+  --c-crater: rgba(18, 12, 6, .38);
+  --c-crater-rim: rgba(255, 240, 200, .28);
+  --c-space: #050A1C;
+  --c-space-star: rgba(255, 255, 255, .8);
+
+  /* 电影化空间场景（Kurzgesagt 风，跨主题固定） */
+  --c-fx-space: #1A0B3D;
+  --c-fx-grid: rgba(180, 80, 255, .14);
+  --c-fx-star: rgba(255, 255, 255, .85);
+  --c-nebula-a: rgba(180, 40, 255, .16);
+  --c-nebula-b: rgba(40, 180, 255, .12);
+  --c-highlight: rgba(255, 255, 255, .6);
+  --c-rocket-1: #FFF6E5;
+  --c-rocket-2: #FF4D6D;
+  --c-rocket-3: #FF8A00;
+  --c-rocket-window: #4BE1FF;
+  --c-rocket-window-2: #1E6BFF;
+  --c-comet-1: #FFFFFF;
+  --c-comet-2: #FFD166;
+  --c-comet-3: #FF3D81;
+  --c-earth-ocean-1: #6FE7FF;
+  --c-earth-ocean-2: #2A7BFF;
+  --c-earth-ocean-3: #123A8A;
+  --c-earth-land: #3DDC84;
+  --c-earth-land-2: #1FA35A;
+  --c-earth-shadow: rgba(6, 10, 40, .55);
+  --c-earth-glow: rgba(80, 180, 255, .55);
+  --c-moon-1: #FFF3C4;
+  --c-moon-2: #F5D76E;
+  --c-moon-3: #C9A63D;
+  --c-moon-crater: rgba(100, 70, 20, .35);
+  --c-moon-shadow: rgba(60, 30, 10, .45);
+  --c-moon-glow: rgba(255, 220, 120, .35);
 
   background-color: var(--c-bg);
   color: var(--c-text);
@@ -96,6 +141,21 @@ page {
 
   --c-scene-rocket: #DCEBFF;
   --c-scene-meteor: #E6E6EC;
+  --c-scene-solar: #FFF1C9;
+
+  --c-star: rgba(80, 105, 165, .32);
+  --c-smoke: rgba(110, 110, 120, .22);
+  --c-spark: rgba(255, 165, 60, .85);
+  --c-dust: rgba(200, 140, 40, .45);
+  --c-streak: rgba(70, 120, 210, .3);
+  --c-halo: rgba(255, 138, 61, .24);
+  --c-halo-glow: rgba(255, 138, 61, .5);
+  --c-halo-space: rgba(78, 161, 255, .24);
+  --c-halo-space-glow: rgba(78, 161, 255, .6);
+  --c-crater: rgba(70, 50, 25, .28);
+  --c-crater-rim: rgba(255, 255, 255, .5);
+  --c-space: #050A1C;
+  --c-space-star: rgba(255, 255, 255, .8);
 }
 
 /* 9-12 岁：深空紧凑。小圆角、小字号。 */
@@ -116,6 +176,21 @@ page {
 
   --c-scene-rocket: #0E1638;
   --c-scene-meteor: #1A1A22;
+  --c-scene-solar: #101A3A;
+
+  --c-star: rgba(255, 255, 255, .72);
+  --c-smoke: rgba(220, 228, 255, .34);
+  --c-spark: rgba(255, 225, 150, .9);
+  --c-dust: rgba(255, 209, 102, .55);
+  --c-streak: rgba(255, 255, 255, .35);
+  --c-halo: rgba(78, 161, 255, .26);
+  --c-halo-glow: rgba(78, 161, 255, .55);
+  --c-halo-space: rgba(78, 161, 255, .24);
+  --c-halo-space-glow: rgba(78, 161, 255, .6);
+  --c-crater: rgba(18, 12, 6, .38);
+  --c-crater-rim: rgba(255, 240, 200, .28);
+  --c-space: #050A1C;
+  --c-space-star: rgba(255, 255, 255, .8);
 }
 
 /* ==================== 页面骨架 ==================== */
@@ -217,6 +292,7 @@ page {
  *    首页已搬成真 .ttml/.ttss 并在抖音开发者工具里跑通，配色/圆角/间距
  *    全部来自 var()，渲染正常。故【不需要】降级方案。
  *
- * 仍未单独验证的（搬关卡页时会用到，届时一并确认）：
- *    min-height: 100vh / transform: translate(-50%,-50%) / @keyframes / position: fixed
+ * 2026-11-03 起，关卡成功动画依赖 @keyframes / transform /
+ * position: fixed / 内联 CSS 变量；这些能力已进入真机验证清单。
+ * 若真机不生效，按 utils/success-fx.js 的降级方案处理（见接口契约 §5.2）。
  */

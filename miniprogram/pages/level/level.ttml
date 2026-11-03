@@ -10,7 +10,7 @@
 -->
 
 <view class="page theme-{{theme}}">
-  <view class="container">
+  <view class="container {{fx ? fx.containerClass : ''}}">
 
     <view tt:if="{{error}}" class="hint">{{error}}</view>
 
@@ -27,7 +27,12 @@
         舞台内的一切（装饰、目标、提示）都由页面按【关卡数据】渲染 ——
         引擎不认识任何具体关卡。
       -->
-      <view class="stage scene-{{sceneKey}} {{stageClass}}">
+      <view class="stage scene-{{sceneKey}} {{stageClass}} {{shakeClass}}">
+
+        <!-- 环境星野：让舞台始终有深空层次，不参与交互 -->
+        <view class="stage-stars">
+          <view tt:for="{{stars}}" tt:key="key" class="stage-star" style="{{item.style}}"></view>
+        </view>
 
         <!-- 场景装饰物。纯展示，不可点。 -->
         <view class="stage-deco anim-{{item.anim}}"
@@ -36,6 +41,9 @@
               style="{{item.wrapStyle}}">
           <view class="stage-deco-inner" style="{{item.rotStyle}}">{{item.icon}}</view>
         </view>
+
+        <!-- 撞击留下的坑：动画前就渲染，靠 delay 在撞击时刻出现，之后一直保留 -->
+        <view tt:for="{{craters}}" tt:key="key" class="stage-crater" style="{{item.style}}"></view>
 
         <!-- 可点目标。坐标由引擎转成百分比字符串，中心点语义。 -->
         <view class="stage-target {{item.hit ? 'is-hit' : ''}} {{item.wrong ? 'is-wrong' : ''}}"
@@ -51,13 +59,101 @@
         <!-- 失败提示（缺口 G3：1 秒瞬时提示，随后自动消失） -->
         <view tt:if="{{showHint}}" class="stage-hint">{{hintText}}</view>
 
+        <!-- 成功动画：舞台内效果层（升空 / 坠落）。
+             位移由 .fx-mover 的 CSS 变量驱动，缩放由 .fx-body--* 负责。 -->
+        <view tt:if="{{fx && !fx.fullscreen}}"
+              class="fx-layer {{fx.exiting ? 'is-exiting' : ''}}">
+          <!-- 深空底 + 网格 + 星点 + 静态矢量道具 -->
+          <view tt:if="{{fx.space}}" class="fx-space">
+            <view class="fx-nebula fx-nebula-a"></view>
+            <view class="fx-nebula fx-nebula-b"></view>
+            <view tt:for="{{fx.grid}}" tt:key="key"
+                  class="fx-grid-line {{item.cls}}" style="{{item.style}}"></view>
+            <view tt:for="{{fx.spaceStars}}" tt:key="key"
+                  class="fx-space-star" style="{{item.style}}"></view>
+            <view tt:for="{{fx.props}}" tt:key="key"
+                  class="fx-prop" style="{{item.style}}">
+              <view tt:if="{{item.visual === 'moon'}}" class="fx-art fx-art--moon">
+                <view class="mn-shadow"></view>
+                <view class="mn-shine"></view>
+                <view class="mn-crater mn-c1"></view>
+                <view class="mn-crater mn-c2"></view>
+                <view class="mn-crater mn-c3"></view>
+              </view>
+            </view>
+          </view>
+
+          <!-- 冲击波 / 闪光 / 粒子 / 残影 / 演员 -->
+          <view tt:for="{{fx.shockwaves}}" tt:key="key"
+                class="fx-shockwave" style="{{item.style}}"></view>
+          <view tt:for="{{fx.flashes}}" tt:key="key"
+                class="fx-flash" style="{{item.style}}"></view>
+          <view tt:for="{{fx.particles}}" tt:key="key"
+                class="fx-particle {{item.cls}}" style="{{item.style}}"></view>
+          <view tt:for="{{fx.ghosts}}" tt:key="key"
+                class="fx-ghost" style="{{item.wrapStyle}}">
+            <view class="fx-mover" style="{{item.moverStyle}}">
+              <view class="fx-anchor" style="{{item.anchorStyle}}">
+                <view class="fx-body {{item.bodyClass}}" style="{{item.bodyStyle}}">
+                  <view class="fx-rotator" style="{{item.rotatorStyle}}">
+                    <text class="fx-icon" style="{{item.iconStyle}}">{{item.icon}}</text>
+                  </view>
+                </view>
+              </view>
+            </view>
+          </view>
+          <view tt:for="{{fx.items}}" tt:key="key" class="fx-mover" style="{{item.moverStyle}}">
+            <view class="fx-anchor {{item.chargeClass}}"
+                  style="{{item.anchorStyle}}{{item.chargeStyle}}">
+              <view class="fx-body {{item.bodyClass}}" style="{{item.bodyStyle}}">
+                <view tt:if="{{item.halo}}" class="fx-halo"></view>
+                <view class="fx-rotator" style="{{item.rotatorStyle}}">
+                  <view tt:if="{{item.visual === 'rocket'}}" class="fx-art fx-art--rocket">
+                    <view class="rk-trail"></view>
+                    <view class="rk-glow"></view>
+                    <view class="rk-body">
+                      <view class="rk-shine"></view>
+                      <view class="rk-window"></view>
+                    </view>
+                    <view class="rk-nose"></view>
+                    <view class="rk-fin rk-fin-l"></view>
+                    <view class="rk-fin rk-fin-r"></view>
+                    <view class="rk-flame"><view class="rk-flame-inner"></view></view>
+                  </view>
+                  <view tt:if="{{item.visual === 'comet'}}" class="fx-art fx-art--comet">
+                    <view class="cm-tail cm-tail-3"></view>
+                    <view class="cm-tail cm-tail-2"></view>
+                    <view class="cm-tail cm-tail-1"></view>
+                    <view class="cm-core"></view>
+                  </view>
+                  <text tt:if="{{!item.visual}}" class="fx-icon"
+                        style="{{item.iconStyle}}">{{item.icon}}</text>
+                </view>
+                <text tt:if="{{item.flame}}" class="fx-flame"
+                      style="{{item.flame.style}}">{{item.flame.icon}}</text>
+              </view>
+            </view>
+            <!-- 爆点单独放在 mover 层：跟着位移走到终点，但不受 actor 淡出影响 -->
+            <text tt:if="{{item.impact}}" class="fx-impact"
+                  style="{{item.anchorStyle}}{{item.impact.style}}">{{item.impact.icon}}</text>
+          </view>
+
+          <!-- 底部字幕：Kurzgesagt 式的白字 + 金线，不再用胶囊 -->
+          <view tt:if="{{successText}}" class="fx-caption"
+                style="{{fx.captionStyle}}">{{successText}}</view>
+        </view>
+
       </view>
 
       <!-- 通关奖励。星级由「云函数」判定，前端只负责展示。
            《接口契约》§3.2：奖励发放必须走云函数，前端不可信。 -->
       <view tt:if="{{reward}}" class="reward">
         <text class="reward-label">已通关</text>
-        <text class="reward-stars">{{reward.starsText}}</text>
+        <view class="reward-stars">
+          <text tt:for="{{reward.starList}}" tt:key="key"
+                class="reward-star {{item.on ? 'is-on' : 'is-off'}}"
+                style="{{item.style}}">{{item.char}}</text>
+        </view>
       </view>
 
       <view tt:if="{{showBadge}}" class="badge">🏅 获得徽章：太空探索者</view>
@@ -74,5 +170,43 @@
 
     </block>
 
+  </view>
+
+  <!-- 成功动画：页面级全屏层（地球放大）。
+       .stage 有 640rpx + overflow:hidden，地球必须放在舞台外才能覆盖全屏。 -->
+  <view tt:if="{{fx && fx.fullscreen}}"
+        class="fx-full {{fx.exiting ? 'is-exiting' : ''}}">
+    <view class="fx-nebula fx-nebula-a"></view>
+    <view class="fx-nebula fx-nebula-b"></view>
+    <view tt:for="{{fx.grid}}" tt:key="key"
+          class="fx-grid-line {{item.cls}}" style="{{item.style}}"></view>
+    <view tt:for="{{fx.stars}}" tt:key="key" class="fx-star" style="{{item.style}}"></view>
+    <view tt:for="{{fx.items}}" tt:key="key" class="fx-mover" style="{{item.moverStyle}}">
+      <view class="fx-anchor" style="{{item.anchorStyle}}">
+        <view class="fx-body {{item.bodyClass}}" style="{{item.bodyStyle}}">
+          <view tt:if="{{item.halo}}" class="fx-halo"></view>
+          <view class="fx-rotator" style="{{item.rotatorStyle}}">
+            <view tt:if="{{item.visual === 'earth'}}" class="fx-art fx-art--earth">
+              <view class="er-land er-l1"></view>
+              <view class="er-land er-l2"></view>
+              <view class="er-land er-l3"></view>
+              <view class="er-land er-l4"></view>
+              <view class="er-land er-l5"></view>
+              <view class="er-cloud er-c1"></view>
+              <view class="er-cloud er-c2"></view>
+            </view>
+            <text tt:if="{{!item.visual}}" class="fx-icon"
+                  style="{{item.iconStyle}}">{{item.icon}}</text>
+          </view>
+          <text tt:if="{{item.flame}}" class="fx-flame"
+                style="{{item.flame.style}}">{{item.flame.icon}}</text>
+        </view>
+      </view>
+      <text tt:if="{{item.impact}}" class="fx-impact"
+            style="{{item.anchorStyle}}{{item.impact.style}}">{{item.impact.icon}}</text>
+    </view>
+
+    <view tt:if="{{successText}}" class="fx-caption"
+          style="{{fx.captionStyle}}">{{successText}}</view>
   </view>
 </view>

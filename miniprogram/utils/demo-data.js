@@ -82,8 +82,29 @@ var DEMO = {
       scene: {
         key: 'rocket',
         /* rotate：emoji 自带朝向未必是你要的。🚀 默认朝右上 45°，
-           转 -45° 才是竖直向上。不填则为 0。 */
-        deco: [{ icon: '🚀', x: 0.5, y: 0.55, anim: 'launch', rotate: -45 }]
+           转 -45° 才是竖直向上。不填则为 0。
+           anim 不再承担通关动画，统一由 successFx 接管。 */
+        deco: [{ id: 'rocket', icon: '🚀', x: 0.5, y: 0.55, anim: 'none', rotate: -45 }],
+        successFx: {
+          version: 1,
+          play: 'always',
+          holdMs: 200,
+          persistHide: false,
+          hideAll: true,              /* 成功时整个舞台切到矢量深空场景 */
+          items: [{
+            type: 'launch',
+            ref: 'deco:rocket',
+            visual: 'rocket',         /* CSS 矢量火箭，替代 emoji */
+            chargeMs: 600,            /* 点火蓄力：抖动 + 冒烟，再起飞 */
+            durationMs: 2400,
+            to: { x: 0.5, y: -0.5 },   /* dy = -105%：飞出舞台顶部 */
+            smoke: 10,
+            sparks: 8,
+            streaks: 9,               /* 速度线 */
+            shake: true,
+            rumble: true
+          }]
+        }
       },
 
       interactionConfig: {
@@ -118,7 +139,43 @@ var DEMO = {
 
       scene: {
         key: 'meteor',
-        deco: [{ icon: '🌕', x: 0.5, y: 0.60, anim: 'none', rotate: 0 }]
+        deco: [{ id: 'moon', icon: '🌕', x: 0.5, y: 0.60, anim: 'none', rotate: 0 }],
+        successFx: {
+          version: 1,
+          play: 'always',
+          holdMs: 300,
+          persistHide: false,
+          hideAll: true,
+          /* 舞台里的月亮换成矢量版；撞击坑会保留在页面上 */
+          props: [{ visual: 'moon', ref: 'deco:moon', size: 128 }],
+          items: [
+            {
+              type: 'fall',
+              ref: 'target:m1',
+              visual: 'comet',
+              durationMs: 2000,
+              impactBurst: 12,
+              shockwave: true,
+              crater: true,
+              shake: true,
+              /* 落点必须在月亮圆面内：月亮半径约舞台宽的 9%，
+                 偏移 5.5% 落在月面左侧。 */
+              to: { ref: 'deco:moon', dx: -0.055, dy: -0.02 }
+            },
+            {
+              type: 'fall',
+              ref: 'target:m2',
+              visual: 'comet',
+              delayMs: 220,
+              durationMs: 2200,
+              impactBurst: 12,
+              shockwave: true,
+              crater: true,
+              shake: true,
+              to: { ref: 'deco:moon', dx: 0.055, dy: -0.035 }
+            }
+          ]
+        }
       },
 
       interactionConfig: {
@@ -150,7 +207,24 @@ var DEMO = {
 
       scene: {
         key: 'solar',
-        deco: [{ icon: '☀️', x: 0.5, y: 0.22, anim: 'none', rotate: 0 }]
+        deco: [{ id: 'sun', icon: '☀️', x: 0.5, y: 0.22, anim: 'none', rotate: 0 }],
+        successFx: {
+          version: 1,
+          play: 'always',
+          holdMs: 900,
+          persistHide: false,
+          items: [{
+            type: 'zoom',
+            ref: 'target:e1',
+            visual: 'earth',    /* CSS 矢量地球 */
+            delayMs: 120,
+            durationMs: 2200,   /* 先推近，再留出停留时间 */
+            size: 128,
+            halo: true,         /* 球体周围的光晕 */
+            stars: 28,          /* 全屏星野 */
+            hideSource: false
+          }]
+        }
       },
 
       interactionConfig: {

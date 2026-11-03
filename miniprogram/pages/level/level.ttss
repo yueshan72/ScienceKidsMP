@@ -36,6 +36,7 @@
 /* 场景底色。class 驱动而非属性选择器 —— TTSS 对 [data-*] 的支持没把握。 */
 .scene-rocket { background-color: var(--c-scene-rocket); }
 .scene-meteor { background-color: var(--c-scene-meteor); }
+.scene-solar { background-color: var(--c-scene-solar); }
 
 /* 场景装饰物。外层只管定位，内层才旋转 —— 否则内层的 rotation
    会和升空动画的 transform 互相覆盖。 */
@@ -51,21 +52,57 @@
   display: inline-block;
 }
 
-/* 通关时的升空动画。只作用于带 anim-launch 的装饰物。 */
-@keyframes deco-launch {
-  from {
-    transform: translate(-50%, -50%) scale(1);
-    opacity: 1;
-  }
-  to {
-    transform: translate(-50%, -560rpx) scale(.35);
-    opacity: 0;
-  }
+/* ==================== 环境星野 ====================
+ * 每关都有的底噪层，纯装饰、不参与命中。星星的 left/top/大小/闪烁
+ * 节奏由页面确定（buildStars），同一关每次进入观感一致。 */
+.stage-stars {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
-.stage.is-success .anim-launch {
-  animation: deco-launch 1.2s var(--ease) forwards;
+.stage-star {
+  position: absolute;
+  border-radius: 50%;
+  background-color: var(--c-star);
+  animation-name: star-twinkle;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
 }
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: .2; transform: scale(.8); }
+  50%      { opacity: .95; transform: scale(1.1); }
+}
+
+/* 撞击留下的坑。动画前渲染，delay 到撞击时刻才出现，之后一直保留。 */
+.stage-crater {
+  position: absolute;
+  z-index: 6;              /* 盖在深空效果层之上，撞击时可见 */
+  border-radius: 50%;
+  background-color: var(--c-crater);
+  border: 2rpx solid var(--c-crater-rim);
+  box-shadow: 0 0 12rpx var(--c-crater);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.4);
+  animation-name: crater-in;
+  animation-duration: 320ms;
+  animation-fill-mode: forwards;
+  animation-timing-function: cubic-bezier(.2, 1.4, .3, 1);
+  pointer-events: none;
+}
+
+@keyframes crater-in {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(.4); }
+  to   { opacity: .9; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* 通关动画统一由 scene.successFx 驱动（见文件末尾「成功动画」）。
+   deco[].anim 仍保留给非通关装饰使用，但目前只有 none。 */
 
 /* ==================== 可点目标 ====================
  * 坐标由引擎写成 left/top 百分比，且是【中心点】语义（缺口 G2 的决议），
@@ -103,6 +140,12 @@
   opacity: .45;
 }
 
+/* 成功动画期间/结束后的来源隐藏。放在 .is-hit 之后，确保能覆盖 .45。 */
+.stage.fx-hide-deco .stage-deco { opacity: 0; }
+.stage.fx-hide-targets .stage-target { opacity: 0; }
+/* 地球放大前保持来源可见，由 .container 的淡出接管 */
+.stage.fx-keep-source .stage-target.is-hit { opacity: 1; }
+
 @keyframes target-shake {
   0%, 100% { transform: translate(-50%, -50%); }
   25%      { transform: translate(-58%, -50%); }
@@ -139,6 +182,7 @@
   background-color: var(--c-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
+  animation: reward-pop 420ms cubic-bezier(.2, 1.2, .3, 1);
 }
 
 .reward-label {
@@ -147,11 +191,26 @@
 }
 
 .reward-stars {
+  display: flex;
+  align-items: center;
   margin-top: var(--sp-2);
   color: var(--c-gold);
   font-size: 64rpx;
   line-height: 1.2;
-  letter-spacing: 8rpx;
+}
+
+.reward-star {
+  display: inline-block;
+  margin: 0 4rpx;
+  animation-name: reward-star-pop;
+  animation-duration: 420ms;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(.2, 1.4, .3, 1);
+}
+
+.reward-star.is-off {
+  color: var(--c-text-weak);
+  opacity: .45;
 }
 
 .badge {
@@ -162,8 +221,803 @@
   border-radius: var(--radius-card);
   text-align: center;
   font-size: var(--fs-sm);
+  animation: reward-slide-in 420ms ease-out 120ms both;
 }
 
 .level-actions {
   margin-top: var(--sp-4);
+  animation: reward-slide-in 420ms ease-out 220ms both;
+}
+
+@keyframes reward-pop {
+  from { opacity: 0; transform: translateY(24rpx) scale(.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes reward-star-pop {
+  from { opacity: 0; transform: scale(.3) rotate(-20deg); }
+  70%  { opacity: 1; transform: scale(1.15) rotate(4deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+@keyframes reward-slide-in {
+  from { opacity: 0; transform: translateY(16rpx); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ==================== 成功动画 ====================
+ * 结构（由 success-fx.js 生成样式串）：
+ *   .fx-mover（全尺寸位移，CSS 变量 --fx-dx/--fx-dy）
+ *     .fx-anchor（来源坐标，零尺寸锚点）
+ *       .fx-body（缩放；火焰/爆点作为子节点跟随）
+ *         .fx-rotator（静态旋转）
+ *           .fx-icon（emoji）
+ *
+ * 关键帧只用 transform / opacity（TTSS 限制）；不使用 left/top 动画、
+ * 不使用 calc、不使用 transition。
+ */
+
+.fx-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* 页面级全屏层：突破 .stage 的 640rpx + overflow:hidden。
+   全屏放大时临时铺一块深空底色，让星野和球体有对比。 */
+.fx-full {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--c-space);
+  animation: fx-space-in 500ms ease-out;
+}
+
+/* 残影：整列跟随 mover 的位移，靠延迟落后于主体 */
+.fx-ghost {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+/* 球体光晕：挂在 body 内，跟着缩放一起变大 */
+.fx-halo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 170%;
+  height: 170%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background-color: var(--c-halo);
+  box-shadow: 0 0 80rpx var(--c-halo-glow);
+  animation: fx-halo-pulse 1400ms ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+/* 全屏时固定用蓝色大气光，不跟随主题的强调色 */
+.fx-full .fx-halo {
+  background-color: var(--c-halo-space);
+  box-shadow: 0 0 120rpx var(--c-halo-space-glow);
+}
+
+/* 粒子：形状/颜色由变体决定，位移/时长全部来自内联样式 */
+.fx-particle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-out;
+  pointer-events: none;
+}
+
+.fx-particle--smoke {
+  background-color: var(--c-smoke);
+  animation-name: fx-smoke;
+}
+
+.fx-particle--spark {
+  background-color: var(--c-spark);
+  box-shadow: 0 0 12rpx var(--c-spark);
+  animation-name: fx-particle;
+}
+
+.fx-particle--dust {
+  background-color: var(--c-dust);
+  animation-name: fx-particle;
+}
+
+.fx-particle--streak {
+  border-radius: 999rpx;
+  background-color: var(--c-streak);
+  animation-name: fx-streak;
+}
+
+/* 冲击波：撞击点扩散的金色圆环 */
+.fx-shockwave {
+  position: absolute;
+  width: 64rpx;
+  height: 64rpx;
+  border: 5rpx solid var(--c-gold);
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.3);
+  animation-name: fx-shockwave;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-out;
+  pointer-events: none;
+}
+
+/* 全屏星野 */
+.fx-star {
+  position: absolute;
+  border-radius: 50%;
+  background-color: var(--c-space-star);
+  animation-name: star-twinkle;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+/* 蓄力抖动：只作用于 anchor，movement 还没开始 */
+.fx-charge {
+  animation-name: fx-charge;
+  animation-timing-function: linear;
+  animation-iteration-count: 1;
+}
+
+/* 震屏：两种 keyframes 交替，保证连续两次撞击都能重新触发 */
+.stage.is-shaking-a { animation: stage-shake-a 420ms ease-out; }
+.stage.is-shaking-b { animation: stage-shake-b 420ms ease-out; }
+.stage.is-rumble    { animation: stage-rumble 130ms linear infinite; }
+
+/* ==================== 矢量深空场景 ====================
+ * 成功时把舞台切到 Kurzgesagt 式深紫空间：网格、星点、星云、扁平演员。
+ * 全部用视图拼装，不依赖外部图片；渐变都带纯色兜底。
+ */
+
+.fx-space {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  background-color: var(--c-fx-space);
+  animation: fx-space-in 450ms ease-out;
+  pointer-events: none;
+
+  /* 深空场景里统一用冷色粒子，不受页面暖色主题影响 */
+  --c-smoke: rgba(220, 228, 255, .34);
+  --c-streak: rgba(255, 255, 255, .35);
+  --c-dust: rgba(255, 209, 102, .65);
+}
+
+.fx-full {
+  --c-smoke: rgba(220, 228, 255, .34);
+  --c-streak: rgba(255, 255, 255, .35);
+  --c-dust: rgba(255, 209, 102, .65);
+}
+
+.fx-nebula {
+  position: absolute;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.fx-nebula-a {
+  left: 8%;
+  top: 16%;
+  box-shadow: 0 0 260rpx 120rpx var(--c-nebula-a);
+}
+
+.fx-nebula-b {
+  right: 4%;
+  bottom: 8%;
+  box-shadow: 0 0 240rpx 100rpx var(--c-nebula-b);
+}
+
+.fx-grid-line {
+  position: absolute;
+  background-color: var(--c-fx-grid);
+  pointer-events: none;
+}
+
+.fx-grid-v { top: 0; bottom: 0; width: 2rpx; }
+.fx-grid-h { left: 0; right: 0; height: 2rpx; }
+
+.fx-space-star {
+  position: absolute;
+  border-radius: 50%;
+  background-color: var(--c-fx-star);
+  animation-name: star-twinkle;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+.fx-prop {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.fx-art {
+  position: relative;
+  display: block;
+}
+
+/* ---------------- 矢量火箭 ---------------- */
+
+.fx-art--rocket {
+  width: 120rpx;
+  height: 150rpx;
+}
+
+.rk-trail {
+  position: absolute;
+  left: 50%;
+  top: 118rpx;
+  width: 44rpx;
+  height: 220rpx;
+  margin-left: -22rpx;
+  border-radius: 50% 50% 46% 46% / 8% 8% 92% 92%;
+  background-color: var(--c-rocket-3);
+  box-shadow: 0 0 50rpx var(--c-rocket-3);
+  transform-origin: 50% 0;
+  opacity: .18;
+  animation: rk-trail 220ms ease-in-out infinite alternate;
+}
+
+.rk-glow {
+  position: absolute;
+  left: 50%;
+  top: 108rpx;
+  width: 70rpx;
+  height: 70rpx;
+  margin-left: -35rpx;
+  border-radius: 50%;
+  background-color: var(--c-rocket-3);
+  box-shadow: 0 0 70rpx 24rpx var(--c-rocket-3);
+  opacity: .35;
+}
+
+.rk-body {
+  position: absolute;
+  left: 50%;
+  top: 28rpx;
+  width: 64rpx;
+  height: 104rpx;
+  margin-left: -32rpx;
+  border-radius: 32rpx 32rpx 16rpx 16rpx;
+  background-color: var(--c-rocket-1);
+}
+
+.rk-shine {
+  position: absolute;
+  left: 10rpx;
+  top: 18rpx;
+  width: 10rpx;
+  height: 56rpx;
+  border-radius: 999rpx;
+  background-color: var(--c-highlight);
+  opacity: .7;
+}
+
+.rk-window {
+  position: absolute;
+  left: 50%;
+  top: 30rpx;
+  width: 28rpx;
+  height: 28rpx;
+  margin-left: -14rpx;
+  border-radius: 50%;
+  background-color: var(--c-rocket-window);
+  border: 4rpx solid var(--c-rocket-1);
+  box-shadow: 0 0 14rpx var(--c-rocket-window-2);
+}
+
+.rk-nose {
+  position: absolute;
+  left: 50%;
+  top: 4rpx;
+  width: 64rpx;
+  height: 42rpx;
+  margin-left: -32rpx;
+  border-radius: 32rpx 32rpx 8rpx 8rpx;
+  background-color: var(--c-rocket-2);
+}
+
+.rk-fin {
+  position: absolute;
+  top: 96rpx;
+  width: 24rpx;
+  height: 44rpx;
+  border-radius: 12rpx;
+  background-color: var(--c-rocket-3);
+}
+
+.rk-fin-l { left: 8rpx; transform: rotate(-22deg); }
+.rk-fin-r { right: 8rpx; transform: rotate(22deg); }
+
+.rk-flame {
+  position: absolute;
+  left: 50%;
+  top: 128rpx;
+  width: 54rpx;
+  height: 96rpx;
+  margin-left: -27rpx;
+  border-radius: 50% 50% 45% 45% / 18% 18% 82% 82%;
+  background-color: var(--c-rocket-3);
+  box-shadow: 0 0 26rpx var(--c-rocket-3);
+  transform-origin: 50% 0;
+  animation: rk-flicker 180ms ease-in-out infinite alternate;
+}
+
+.rk-flame-inner {
+  position: absolute;
+  left: 50%;
+  top: 10rpx;
+  width: 24rpx;
+  height: 58rpx;
+  margin-left: -12rpx;
+  border-radius: 50% 50% 40% 40% / 18% 18% 82% 82%;
+  background-color: var(--c-comet-2);
+}
+
+@keyframes rk-flicker {
+  from { transform: scale(.9, .92); opacity: .85; }
+  to   { transform: scale(1.05, 1.08); opacity: 1; }
+}
+
+@keyframes rk-trail {
+  from { transform: scale(.9, .92); opacity: .14; }
+  to   { transform: scale(1.1, 1.04); opacity: .24; }
+}
+
+/* ---------------- 矢量彗星 ---------------- */
+
+.fx-art--comet {
+  width: 200rpx;
+  height: 200rpx;
+}
+
+.cm-tail {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  transform-origin: 50% 100%;
+  border-radius: 50% 50% 12% 12% / 18% 18% 82% 82%;
+}
+
+.cm-tail-3 {
+  width: 36rpx;
+  height: 150rpx;
+  margin-left: -18rpx;
+  background-color: var(--c-comet-3);
+  opacity: .45;
+}
+
+.cm-tail-2 {
+  width: 24rpx;
+  height: 130rpx;
+  margin-left: -12rpx;
+  background-color: var(--c-comet-2);
+  opacity: .75;
+}
+
+.cm-tail-1 {
+  width: 10rpx;
+  height: 92rpx;
+  margin-left: -5rpx;
+  background-color: var(--c-comet-1);
+}
+
+.cm-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44rpx;
+  height: 44rpx;
+  margin: -22rpx 0 0 -22rpx;
+  border-radius: 50%;
+  background-color: var(--c-comet-1);
+  box-shadow: 0 0 36rpx 12rpx var(--c-comet-2);
+}
+
+/* ---------------- 矢量地球 ---------------- */
+
+.fx-art--earth {
+  width: 128rpx;
+  height: 128rpx;
+  overflow: hidden;
+  border-radius: 50%;
+  background-color: var(--c-earth-ocean-2);
+  background-image: radial-gradient(circle at 32% 28%,
+    var(--c-earth-ocean-1) 0%,
+    var(--c-earth-ocean-2) 58%,
+    var(--c-earth-ocean-3) 100%);
+  box-shadow: inset -16rpx -12rpx 40rpx var(--c-earth-shadow),
+    0 0 50rpx var(--c-earth-glow);
+}
+
+.er-land {
+  position: absolute;
+  background-color: var(--c-earth-land);
+  border-radius: 58% 42% 62% 38% / 44% 58% 42% 56%;
+}
+
+.er-l1 {
+  left: 8rpx;
+  top: 42rpx;
+  width: 56rpx;
+  height: 62rpx;
+  transform: rotate(-22deg);
+}
+
+.er-l2 {
+  left: 60rpx;
+  top: 10rpx;
+  width: 60rpx;
+  height: 46rpx;
+  transform: rotate(14deg);
+  background-color: var(--c-earth-land-2);
+}
+
+.er-l3 {
+  left: 78rpx;
+  top: 80rpx;
+  width: 32rpx;
+  height: 26rpx;
+  transform: rotate(-8deg);
+}
+
+.er-l4 {
+  left: 14rpx;
+  top: 18rpx;
+  width: 26rpx;
+  height: 18rpx;
+  transform: rotate(18deg);
+  background-color: var(--c-earth-land-2);
+}
+
+.er-l5 {
+  left: 34rpx;
+  top: 96rpx;
+  width: 24rpx;
+  height: 16rpx;
+  transform: rotate(-12deg);
+  background-color: var(--c-earth-land-2);
+}
+
+.er-cloud {
+  position: absolute;
+  border-radius: 999rpx;
+  background-color: var(--c-highlight);
+  opacity: .45;
+}
+
+.er-c1 {
+  left: 20rpx;
+  top: 24rpx;
+  width: 42rpx;
+  height: 9rpx;
+  transform: rotate(-12deg);
+}
+
+.er-c2 {
+  left: 64rpx;
+  top: 92rpx;
+  width: 40rpx;
+  height: 8rpx;
+  transform: rotate(8deg);
+}
+
+/* ---------------- 矢量月球 ---------------- */
+
+.fx-art--moon {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 50%;
+  background-color: var(--c-moon-2);
+  background-image: radial-gradient(circle at 34% 28%,
+    var(--c-moon-1) 0%,
+    var(--c-moon-2) 60%,
+    var(--c-moon-3) 100%);
+  box-shadow: inset -18rpx -14rpx 40rpx var(--c-moon-shadow),
+    0 0 50rpx var(--c-moon-glow);
+}
+
+.mn-shadow {
+  position: absolute;
+  right: -10rpx;
+  bottom: -16rpx;
+  width: 100rpx;
+  height: 110rpx;
+  border-radius: 50%;
+  background-color: var(--c-moon-shadow);
+  opacity: .4;
+}
+
+.mn-shine {
+  position: absolute;
+  left: 22rpx;
+  top: 18rpx;
+  width: 26rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background-color: var(--c-highlight);
+  opacity: .5;
+}
+
+.mn-crater {
+  position: absolute;
+  border-radius: 50%;
+  background-color: var(--c-moon-crater);
+  box-shadow: 0 3rpx 6rpx var(--c-moon-shadow);
+}
+
+.mn-c1 { left: 30rpx; top: 46rpx; width: 30rpx; height: 26rpx; }
+.mn-c2 { left: 68rpx; top: 28rpx; width: 22rpx; height: 20rpx; }
+.mn-c3 { left: 54rpx; top: 82rpx; width: 34rpx; height: 26rpx; }
+
+/* ---------------- 撞击闪光 ---------------- */
+
+.fx-flash {
+  position: absolute;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  background-color: var(--c-comet-2);
+  box-shadow: 0 0 60rpx 24rpx var(--c-comet-2);
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(.2);
+  animation-name: fx-flash;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-out;
+  pointer-events: none;
+}
+
+@keyframes fx-flash {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(.2); }
+  20%  { opacity: 1; transform: translate(-50%, -50%) scale(1.4); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(2.4); }
+}
+
+.fx-mover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  animation-name: fx-move;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-in-out;
+}
+
+.fx-anchor {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.fx-body {
+  position: absolute;
+  left: 0;
+  top: 0;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-in-out;
+}
+
+.fx-body--launch { animation-name: fx-shrink; }
+.fx-body--fall   { animation-name: fx-settle; }
+.fx-body--zoom   {
+  animation-name: fx-cover;
+  /* 动画 delay 期间保持与舞台地球一致的视觉尺寸，避免闪一下 */
+  transform: translate(-50%, -50%) scale(.34);
+}
+
+.fx-rotator {
+  display: inline-block;
+  line-height: 1;
+  transform-origin: center;
+}
+
+.fx-icon {
+  display: block;
+  line-height: 1;
+}
+
+/* 火焰挂在 body 内，自动跟随火箭；自身只做闪烁 */
+.fx-flame {
+  position: absolute;
+  left: 50%;
+  line-height: 1;
+  transform-origin: center top;
+  animation-name: fx-flame;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+  pointer-events: none;
+}
+
+/* 爆点：与 actor 同级、放在 mover 里。位置用来源坐标，由 mover 的位移带到终点；
+   它自己的关键帧只做透明/缩放，所以 actor 淡出不会把爆炸一起隐藏。 */
+.fx-impact {
+  position: absolute;
+  line-height: 1;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  animation-name: fx-impact;
+  animation-fill-mode: forwards;
+  animation-timing-function: ease-out;
+  pointer-events: none;
+}
+
+/* 地球全屏时把页面内容淡出；效果层在容器外，不受影响 */
+.container.is-fx-dim {
+  animation: fx-dim 600ms ease-in-out forwards;
+}
+
+/* 效果层/文案的退场 */
+.fx-layer.is-exiting,
+.fx-full.is-exiting,
+.fx-caption.is-exiting {
+  animation: fx-exit 250ms ease-in forwards;
+}
+
+/* 底部字幕：白字 + 金线 + 深色投影，贴近参考视频的字幕风格 */
+.fx-caption {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  z-index: 30;
+  transform: translate(-50%, 0);
+  padding: 0 0 10rpx;
+  background-color: transparent;
+  border: none;
+  border-bottom: 4rpx solid var(--c-gold);
+  border-radius: 0;
+  color: var(--c-fx-star);
+  font-size: 40rpx;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow: 0 3rpx 0 var(--c-earth-shadow), 0 0 18rpx var(--c-earth-shadow);
+  animation: fx-caption-in 460ms cubic-bezier(.2, 1.3, .3, 1);
+  /* delay 期间保持 0% 帧的透明态，否则文案会在蓄力阶段提前出现 */
+  animation-fill-mode: backwards;
+}
+
+@keyframes fx-move {
+  from { transform: translate(0, 0); opacity: 1; }
+  to   { transform: translate(var(--fx-dx, 0%), var(--fx-dy, 0%)); opacity: 1; }
+}
+
+@keyframes fx-shrink {
+  from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  to   { transform: translate(-50%, -50%) scale(.55); opacity: 0; }
+}
+
+@keyframes fx-settle {
+  from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  90%  { transform: translate(-50%, -50%) scale(.88); opacity: 1; }
+  to   { transform: translate(-50%, -50%) scale(.85); opacity: 0; }
+}
+
+/* 16 倍：20:9 竖屏下 128rpx ≈ 68px，68 × 16 ≈ 1088px > 890px 屏高，
+   保证地球真正铺满整页（12 倍在长屏上会露边）。 */
+@keyframes fx-cover {
+  from { transform: translate(-50%, -50%) scale(.34); opacity: 1; }
+  to   { transform: translate(-50%, -50%) scale(16); opacity: 1; }
+}
+
+@keyframes fx-flame {
+  from { transform: translate(-50%, -15%) scale(1, .85); opacity: .85; }
+  to   { transform: translate(-50%, -15%) scale(1.1, 1.15); opacity: 1; }
+}
+
+@keyframes fx-impact {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(.5); }
+  20%  { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+@keyframes fx-dim {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes fx-exit {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes fx-caption-in {
+  0%   { opacity: 0; transform: translate(-50%, 20rpx) scale(.8); }
+  60%  { opacity: 1; transform: translate(-50%, -6rpx) scale(1.06); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+@keyframes fx-space-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fx-halo-pulse {
+  from { opacity: .55; transform: translate(-50%, -50%) scale(.94); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+}
+
+@keyframes fx-particle {
+  0%   { transform: translate(-50%, -50%) translate(0, 0) scale(.6); opacity: 0; }
+  15%  { opacity: 1; }
+  100% { transform: translate(-50%, -50%) translate(var(--fx-px, 0rpx), var(--fx-py, 0rpx)) scale(var(--fx-scale, .2)); opacity: 0; }
+}
+
+@keyframes fx-smoke {
+  0%   { transform: translate(-50%, -50%) translate(0, 0) scale(.5); opacity: 0; }
+  25%  { opacity: .75; }
+  100% { transform: translate(-50%, -50%) translate(var(--fx-px, 0rpx), var(--fx-py, 0rpx)) scale(var(--fx-scale, 2)); opacity: 0; }
+}
+
+@keyframes fx-streak {
+  0%   { transform: translate(-50%, -50%) translate(0, 0); opacity: 0; }
+  20%  { opacity: .85; }
+  100% { transform: translate(-50%, -50%) translate(var(--fx-px, 0rpx), var(--fx-py, 0rpx)); opacity: 0; }
+}
+
+@keyframes fx-shockwave {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(.3); }
+  15%  { opacity: .9; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(3.4); }
+}
+
+@keyframes fx-charge {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  20%  { transform: translate(-4rpx, 2rpx) rotate(-1.5deg); }
+  40%  { transform: translate(5rpx, -2rpx) rotate(1.5deg); }
+  60%  { transform: translate(-5rpx, 3rpx) rotate(-1.2deg); }
+  80%  { transform: translate(4rpx, -1rpx) rotate(1.2deg); }
+}
+
+@keyframes stage-shake-a {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(-6rpx, 4rpx); }
+  30% { transform: translate(7rpx, -5rpx); }
+  45% { transform: translate(-5rpx, 3rpx); }
+  60% { transform: translate(5rpx, -2rpx); }
+  75% { transform: translate(-3rpx, 1rpx); }
+}
+
+@keyframes stage-shake-b {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(6rpx, -4rpx); }
+  30% { transform: translate(-7rpx, 5rpx); }
+  45% { transform: translate(5rpx, -3rpx); }
+  60% { transform: translate(-5rpx, 2rpx); }
+  75% { transform: translate(3rpx, -1rpx); }
+}
+
+@keyframes stage-rumble {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(2rpx, -1rpx); }
 }
