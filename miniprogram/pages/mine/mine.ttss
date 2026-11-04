@@ -164,8 +164,21 @@
 
 /* ---------------- 收藏 ---------------- */
 .fav-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: var(--touch-min);
   padding: var(--sp-3) 0;
   border-bottom: 1rpx solid var(--c-line);
+}
+
+.fav-title {
+  flex: 1;
+  margin-right: var(--sp-2);
+}
+
+.fav-arrow {
+  color: var(--c-text-weak);
 }
 
 .fav-item:last-child {

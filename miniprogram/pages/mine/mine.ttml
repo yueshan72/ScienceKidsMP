@@ -18,6 +18,10 @@
         <text class="stat-label">通关</text>
       </view>
       <view class="stat">
+        <text class="stat-num">{{stats.points}}</text>
+        <text class="stat-label">积分</text>
+      </view>
+      <view class="stat">
         <text class="stat-num">{{stats.streak}}</text>
         <text class="stat-label">连续打卡</text>
       </view>
@@ -79,8 +83,13 @@
       在首页或主题页点 ☆ 收藏喜欢的内容
     </view>
     <view tt:else class="card">
-      <view class="fav-item" tt:for="{{favorites}}" tt:key="_id">
-        <text>⭐ {{item.title}}</text>
+      <view class="fav-item"
+            tt:for="{{favorites}}"
+            tt:key="_id"
+            data-id="{{item._id}}"
+            bindtap="onTapFavorite">
+        <text class="fav-title">⭐ {{item.title}}</text>
+        <text class="fav-arrow">›</text>
       </view>
     </view>
 

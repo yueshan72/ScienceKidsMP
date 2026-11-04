@@ -355,6 +355,16 @@
   opacity: .45;
 }
 
+/* 积分 V1.0 仅展示：金色文字，不引入新的色值 */
+.reward-points {
+  margin-top: var(--sp-2);
+  color: var(--c-gold);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  letter-spacing: 1rpx;
+  animation: reward-pop 420ms cubic-bezier(.2, 1.2, .3, 1) 360ms both;
+}
+
 .badge {
   margin-top: var(--sp-3);
   padding: var(--sp-3);

@@ -8,7 +8,7 @@
 const path = require('path');
 const { spawnSync } = require('child_process');
 
-const files = ['interaction.test.js', 'local-state.test.js', 'data-service.test.js', 'tos-api.test.js', 'success-fx.test.js'];
+const files = ['interaction.test.js', 'local-state.test.js', 'data-service.test.js', 'tos-api.test.js', 'success-fx.test.js', 'points.test.js'];
 let exitCode = 0;
 let failedFiles = [];
 

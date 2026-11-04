@@ -15,6 +15,7 @@ const dataService = require('../../utils/data-service.js');
 const Age = require('../../utils/age.js');
 const Format = require('../../utils/format.js');
 const SuccessFx = require('../../utils/success-fx.js');
+const Points = require('../../utils/points.js');
 
 /* 全局动画开关：真机若发现 CSS 关键帧异常，可置 false 回退到静态成功态 */
 const FX_ENABLED = true;
@@ -317,7 +318,8 @@ Page({
       if (seq !== this._settleSeq) return;
       this._pendingReward = {
         stars: r && r.stars,
-        newBadges: (r && r.newBadges) || []
+        newBadges: (r && r.newBadges) || [],
+        isFirstComplete: !!(r && r.isFirstComplete)
       };
       this.showRewardIfReady();
     };
@@ -348,10 +350,15 @@ Page({
         style: 'animation-delay:' + (i * 120) + 'ms;'
       };
     });
+    /* 积分 V1.0 仅展示：首次通关 +10；重复通关不重复计分，不显示加分 */
+    const pointsText = this._pendingReward.isFirstComplete
+      ? '+' + Points.POINTS_PER_LEVEL + ' 积分'
+      : '';
     this.setData({
       reward: {
         starsText: Format.starsText(n),
-        starList: starList
+        starList: starList,
+        pointsText: pointsText
       },
       showBadge: (this._pendingReward.newBadges || []).length > 0
     });

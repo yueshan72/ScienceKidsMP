@@ -201,6 +201,8 @@
                 class="reward-star {{item.on ? 'is-on' : 'is-off'}}"
                 style="{{item.style}}">{{item.char}}</text>
         </view>
+        <!-- 积分 V1.0 仅展示：首次通关显示 +10，重复通关不显示 -->
+        <text tt:if="{{reward.pointsText}}" class="reward-points">{{reward.pointsText}}</text>
       </view>
 
       <view tt:if="{{showBadge}}" class="badge">🏅 获得徽章：太空探索者</view>

@@ -12,6 +12,7 @@ const dataService = require('../../utils/data-service.js');
 const Age = require('../../utils/age.js');
 const Format = require('../../utils/format.js');
 const DateUtil = require('../../utils/date.js');
+const Points = require('../../utils/points.js');
 
 Page({
   data: {
@@ -89,6 +90,8 @@ Page({
       stats: {
         doneLevels: levelList.filter(function (l) { return l.done; }).length,
         totalLevels: levelList.length,
+        /* 积分 V1.0 仅展示：由通关记录推导，不单独存储 */
+        points: Points.totalFromProgress(Local.getProgress()),
         streak: streakData.streak,
         checkinDays: checkins.length
       },
@@ -124,6 +127,13 @@ Page({
     const id = e.currentTarget.dataset.id;
     if (!id) return;
     tt.navigateTo({ url: '/pages/level/level?id=' + id });
+  },
+
+  /* ---------------- 收藏 ---------------- */
+  onTapFavorite(e) {
+    const id = e.currentTarget.dataset.id;
+    if (!id) return;
+    tt.navigateTo({ url: '/pages/video/video?id=' + id });
   },
 
   /* ---------------- 打卡 ---------------- */
