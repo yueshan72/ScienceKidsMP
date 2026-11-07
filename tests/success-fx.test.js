@@ -148,6 +148,11 @@ ok('向中心位移 y≈7.96', near(zoom.items[0].delta.yPct, 7.96, 0.05),
   String(zoom.items[0].delta.yPct));
 ok('hideSource=false 不隐藏 target', zoom.hideTargets === false);
 ok('zoom body 类名', zoom.items[0].bodyClass === 'fx-body--zoom');
+ok('放大终点按屏幕短边计算（750×1334 / 128rpx ≈ 5.86）',
+  near(zoom.items[0].zoomScale, 5.86, 0.02), String(zoom.items[0].zoomScale));
+ok('bodyStyle 带缩放变量',
+  zoom.items[0].bodyStyle.indexOf('--fx-zoom-scale:5.86') !== -1,
+  zoom.items[0].bodyStyle);
 ok('停留 900ms', zoom.holdMs === 900);
 
 const zoomFallback = Fx.build(
@@ -160,6 +165,8 @@ const zoomFallback = Fx.build(
 );
 ok('无舞台测量时回退 50/60',
   zoomFallback.items[0].anchorStyle === 'left:50%;top:60%;');
+ok('无尺寸时缩放回退 6', zoomFallback.items[0].zoomScale === 6,
+  String(zoomFallback.items[0].zoomScale));
 
 /* ================= 5. 默认值与夹紧 ================= */
 console.log('\n[5] 默认值与夹紧');

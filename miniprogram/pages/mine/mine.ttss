@@ -246,3 +246,11 @@
   color: var(--c-text-weak);
   font-size: var(--fs-sm);
 }
+
+/* 鼠标悬停时可点击行/收藏项的底色变化 */
+@media (hover: hover) {
+  .row-link:hover,
+  .fav-item:hover {
+    background-color: var(--c-surface-2);
+  }
+}

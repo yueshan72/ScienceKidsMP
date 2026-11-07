@@ -160,6 +160,22 @@ function build(scene, interactionConfig, env) {
       num(raw.size, isDeco ? DEFAULT_DECO_SIZE : DEFAULT_TARGET_SIZE),
       16, 400
     );
+
+    /* 放大终点：地球直径碰到屏幕较短边就停，不再无限放大。
+       1rpx = windowWidth / 750 px；target 取 min(宽, 高)，
+       这样竖屏时左右贴边、上下留出空间。 */
+    let zoomScale = 1;
+    if (raw.type === 'zoom') {
+      if (env.windowWidth && env.windowHeight) {
+        const rpxToPx = env.windowWidth / 750;
+        const basePx = Math.max(1, size * rpxToPx);
+        const targetPx = Math.min(env.windowWidth, env.windowHeight);
+        zoomScale = Math.round((targetPx / basePx) * 100) / 100;
+      } else {
+        zoomScale = 6;
+      }
+    }
+
     const durationMs = clamp(
       num(raw.durationMs, DEFAULT_DURATION_MS),
       MIN_DURATION_MS, MAX_DURATION_MS
@@ -270,6 +286,7 @@ function build(scene, interactionConfig, env) {
       + 'animation-delay:' + moveDelay + 'ms;'
       + 'animation-timing-function:' + timing + ';';
     const bodyStyle = 'font-size:' + size + 'rpx;'
+      + (raw.type === 'zoom' ? '--fx-zoom-scale:' + zoomScale + ';' : '')
       + 'animation-duration:' + durationMs + 'ms;'
       + 'animation-delay:' + moveDelay + 'ms;';
 
@@ -294,6 +311,7 @@ function build(scene, interactionConfig, env) {
       moverStyle: moverStyle,
       bodyClass: 'fx-body--' + raw.type,
       bodyStyle: bodyStyle,
+      zoomScale: zoomScale,
       rotatorStyle: 'transform: rotate(' + visualRotate + 'deg);',
       iconStyle: 'font-size:' + size + 'rpx;',
       halo: raw.type === 'zoom' && raw.halo === true,

@@ -19,25 +19,79 @@
 /* ---- 主题入口大卡 ---- */
 
 .topic-card {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: center;
   min-height: 280rpx;
   padding: var(--sp-6) var(--sp-4);
   margin-top: var(--sp-2);
-  background-color: var(--c-surface-2);
+  background-color: var(--c-fx-space);
+  background-image: linear-gradient(135deg, var(--c-fx-space) 0%, var(--c-space) 100%);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
 }
 
+/* 星云：两团大范围柔光，和关卡舞台同一套 token */
+.topic-nebula {
+  position: absolute;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.topic-nebula-a {
+  left: 8%;
+  top: 12%;
+  box-shadow: 0 0 200rpx 90rpx var(--c-nebula-a);
+}
+
+.topic-nebula-b {
+  right: 4%;
+  bottom: 6%;
+  box-shadow: 0 0 180rpx 80rpx var(--c-nebula-b);
+}
+
+/* 星野：位置/大小/闪烁节奏由 utils/starfield.js 生成 */
+.topic-stars {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.topic-star {
+  position: absolute;
+  border-radius: 50%;
+  background-color: var(--c-space-star);
+  animation-name: topic-star-twinkle;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes topic-star-twinkle {
+  0%, 100% { opacity: .25; transform: scale(.8); }
+  50%      { opacity: .95; transform: scale(1.1); }
+}
+
 .topic-title {
+  position: relative;
+  z-index: 1;
+  color: var(--c-chip-text);
   font-size: var(--fs-2xl);
   font-weight: 700;
 }
 
 .topic-sub {
+  position: relative;
+  z-index: 1;
   margin-top: var(--sp-2);
-  color: var(--c-text-weak);
+  color: var(--c-space-star);
   font-size: var(--fs-sm);
 }
 
@@ -50,6 +104,56 @@
   background-color: var(--c-surface);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
+}
+
+/* ---- 视频封面（左） + 标题/简介（右） ---- */
+
+.video-main {
+  display: flex;
+  align-items: center;
+}
+
+.video-cover-wrap {
+  position: relative;
+  width: 240rpx;
+  height: 135rpx;
+  flex-shrink: 0;
+  margin-right: var(--sp-3);
+  background-color: var(--c-surface-2);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.video-cover {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.video-duration {
+  position: absolute;
+  right: var(--sp-1);
+  bottom: var(--sp-1);
+  padding: 2rpx var(--sp-1);
+  border-radius: 4rpx;
+  background-color: var(--c-overlay);
+  color: var(--c-on-overlay);
+  font-size: var(--fs-xs);
+  line-height: 1.6;
+}
+
+.video-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.video-desc {
+  margin-top: var(--sp-1);
+  color: var(--c-text-weak);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
 }
 
 .video-title {
@@ -143,6 +247,7 @@
 .video-foot-right {
   display: flex;
   align-items: center;
+  margin-left: auto;
 }
 
 .fav {
@@ -212,4 +317,11 @@
 
 .consent-block-btn {
   width: 100%;
+}
+
+/* 鼠标悬停时卡片底色变化（页面 TTSS 优先级高于全局 :hover，需在这里补） */
+@media (hover: hover) {
+  .video-card:hover {
+    background-color: var(--c-surface-2);
+  }
 }

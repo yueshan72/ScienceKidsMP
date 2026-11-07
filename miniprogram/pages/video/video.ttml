@@ -38,17 +38,17 @@
 
       <!-- 点赞 / 收藏（V1.0 仅本地） -->
       <view class="actions">
-        <view class="action {{liked ? 'is-on' : ''}}" bindtap="onToggleLike">
+        <view class="action {{liked ? 'is-on' : ''}}" hover-class="is-pressed" bindtap="onToggleLike">
           <text class="action-icon">{{liked ? '❤️' : '🤍'}}</text>
           <text>{{liked ? '已赞' : '点赞'}}</text>
         </view>
-        <view class="action {{fav ? 'is-on' : ''}}" bindtap="onToggleFav">
+        <view class="action {{fav ? 'is-on' : ''}}" hover-class="is-pressed" bindtap="onToggleFav">
           <text class="action-icon">{{fav ? '★' : '☆'}}</text>
           <text>{{fav ? '已收藏' : '收藏'}}</text>
         </view>
       </view>
 
-      <button class="btn go-btn" bindtap="onGoLevel">
+      <button class="btn go-btn" hover-class="is-pressed" bindtap="onGoLevel">
         {{levelId ? '去动手试一试' : '去看看实验'}}
       </button>
 

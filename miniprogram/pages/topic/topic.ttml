@@ -6,6 +6,15 @@
 -->
 
 <view class="page theme-{{theme}}">
+  <!-- 动态星光背景：固定层，不挡点击 -->
+  <view class="page-bg">
+    <view class="page-nebula page-nebula-a"></view>
+    <view class="page-nebula page-nebula-b"></view>
+    <view class="page-stars">
+      <view tt:for="{{bgStars}}" tt:key="key" class="page-star" style="{{item.style}}"></view>
+    </view>
+  </view>
+
   <view class="container">
 
     <!-- 主题头部 -->
@@ -26,22 +35,33 @@
             tt:for="{{videoList}}"
             tt:key="_id"
             data-id="{{item._id}}"
+            hover-class="is-pressed"
             bindtap="onTapVideo">
-        <text class="video-title">{{item.title}}</text>
+        <view class="video-main">
+          <!-- 左侧小封面 + 时长角标 -->
+          <view class="video-cover-wrap">
+            <image class="video-cover" src="{{item.cover}}" mode="aspectFill" lazy-load></image>
+            <text class="video-duration">{{item.durationText}}</text>
+          </view>
+
+          <!-- 右侧标题 / 简介 / 推广与收藏 -->
+          <view class="video-info">
+            <text class="video-title">{{item.title}}</text>
+            <text class="video-desc">{{item.desc}}</text>
+            <view class="video-foot">
+              <!-- 《需求文档》§9.1：带货内容必须显著标识 -->
+              <text tt:if="{{item.adProduct}}" class="ad-mark">推广</text>
+              <view class="video-foot-right">
+                <!-- 收藏（《需求文档》4.2 / 4.5） -->
+                <text class="fav" data-id="{{item._id}}" catchtap="onToggleFav">{{item.fav ? '★' : '☆'}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
 
         <!-- 《需求文档》§9.2：争议性话题须标注「科学假设 / 未定论」 -->
         <view tt:if="{{item.disputed}}" class="disclaimer">
           ⚠️ 这一集涉及科学假设，尚无定论，和孩子一起讨论看看。
-        </view>
-
-        <view class="video-foot">
-          <text>{{item.durationText}}</text>
-          <view class="video-foot-right">
-            <!-- 收藏（《需求文档》4.2 / 4.5） -->
-            <text class="fav" data-id="{{item._id}}" catchtap="onToggleFav">{{item.fav ? '★' : '☆'}}</text>
-            <!-- 《需求文档》§9.1：带货内容必须显著标识 -->
-            <text tt:if="{{item.adProduct}}" class="ad-mark">推广</text>
-          </view>
         </view>
       </view>
     </block>
@@ -57,6 +77,7 @@
             tt:for="{{levelList}}"
             tt:key="_id"
             data-id="{{item._id}}"
+            hover-class="is-pressed"
             bindtap="onTapLevel">
         <text class="level-order">{{item.order}}</text>
         <view class="level-main">

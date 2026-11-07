@@ -1119,7 +1119,7 @@
    保证地球真正铺满整页（12 倍在长屏上会露边）。 */
 @keyframes fx-cover {
   from { transform: translate(-50%, -50%) scale(.34); opacity: 1; }
-  to   { transform: translate(-50%, -50%) scale(16); opacity: 1; }
+  to   { transform: translate(-50%, -50%) scale(var(--fx-zoom-scale, 6)); opacity: 1; }
 }
 
 @keyframes fx-flame {

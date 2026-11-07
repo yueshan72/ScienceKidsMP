@@ -12,6 +12,8 @@ const Local = require('../../utils/local-state.js');
 const dataService = require('../../utils/data-service.js');
 const Age = require('../../utils/age.js');
 const Format = require('../../utils/format.js');
+const Chrome = require('../../utils/chrome.js');
+const Starfield = require('../../utils/starfield.js');
 
 Page({
   data: {
@@ -24,10 +26,14 @@ Page({
     consentGranted: false,
     consentDenied: false,
     contentList: [],
-    shopList: []
+    shopList: [],
+    topicStars: [],
+    bgStars: Starfield.build(48, { sizeScale: 1.5 })
   },
 
   onLoad() {
+    this.setData({ topicStars: Starfield.build(20) });
+
     const consentGranted = Local.getConsent().granted;
     this.setData({ consentGranted: consentGranted, showConsent: !consentGranted });
 
@@ -45,6 +51,9 @@ Page({
 
   /* 从「我的」页返回时同步：年龄可能被更正，也可能撤回同意后清空了数据 */
   onShow() {
+    /* 让原生导航栏 / tabBar 跟随当前年龄主题 */
+    Chrome.apply(Age.themeOf(app.globalData.ageGroup || Local.getAgeGroup()), { tabBar: true });
+
     const consent = Local.getConsent();
     if (!consent.granted) {
       this.setData({
@@ -120,9 +129,12 @@ Page({
     app.globalData.ageGroup = ageGroup;
     if (!opts || opts.persist !== false) dataService.setAgeGroup(ageGroup);
 
+    const theme = Age.themeOf(ageGroup);
+    Chrome.apply(theme, { tabBar: true });
+
     this.setData({
       ageGroup: ageGroup,
-      theme: Age.themeOf(ageGroup),
+      theme: theme,
       ageLabel: Age.labelOf(ageGroup),
       showAgePicker: false
     });

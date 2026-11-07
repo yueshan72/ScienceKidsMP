@@ -3,6 +3,15 @@
      本次补齐：进度 / 徽章 / 打卡日历 / 收藏 / 更正年龄 / 删除数据 / 撤回同意
 -->
 <view class="page theme-{{theme}}">
+  <!-- 动态星光背景：固定层，不挡点击 -->
+  <view class="page-bg">
+    <view class="page-nebula page-nebula-a"></view>
+    <view class="page-nebula page-nebula-b"></view>
+    <view class="page-stars">
+      <view tt:for="{{bgStars}}" tt:key="key" class="page-star" style="{{item.style}}"></view>
+    </view>
+  </view>
+
   <view class="container">
 
     <!-- 头部 -->
@@ -37,6 +46,7 @@
           tt:for="{{levelList}}"
           tt:key="_id"
           data-id="{{item._id}}"
+          hover-class="is-pressed"
           bindtap="onTapLevel">
       <view class="level-row">
         <text class="level-name">{{item.order}}. {{item.name}}</text>
@@ -74,7 +84,7 @@
         </view>
       </view>
 
-      <button class="btn checkin-btn" bindtap="onCheckin">今日打卡</button>
+      <button class="btn checkin-btn" hover-class="is-pressed" bindtap="onCheckin">今日打卡</button>
     </view>
 
     <!-- 收藏 -->
@@ -87,6 +97,7 @@
             tt:for="{{favorites}}"
             tt:key="_id"
             data-id="{{item._id}}"
+            hover-class="is-pressed"
             bindtap="onTapFavorite">
         <text class="fav-title">⭐ {{item.title}}</text>
         <text class="fav-arrow">›</text>
@@ -96,15 +107,15 @@
     <!-- 隐私与数据（《需求文档》§9.1 硬性要求） -->
     <view class="section-title">隐私与数据</view>
     <view class="card privacy-card">
-      <view class="row" bindtap="onOpenAgePicker">
+      <view class="row row-link" hover-class="is-pressed" bindtap="onOpenAgePicker">
         <text>更正年龄段</text>
         <text class="value">{{ageLabel}} ›</text>
       </view>
-      <view class="row" bindtap="onDeleteData">
+      <view class="row row-link" hover-class="is-pressed" bindtap="onDeleteData">
         <text>删除我的数据</text>
         <text class="value">›</text>
       </view>
-      <view class="row" bindtap="onWithdrawConsent">
+      <view class="row row-link" hover-class="is-pressed" bindtap="onWithdrawConsent">
         <text>撤回监护人同意</text>
         <text class="value">{{consent.granted ? '›' : '已撤回'}}</text>
       </view>
@@ -125,8 +136,9 @@
             tt:for="{{ageOptions}}"
             tt:key="value"
             data-age="{{item.value}}"
+            hover-class="is-pressed"
             bindtap="onPickAge">{{item.label}}</view>
-      <view class="picker-cancel" bindtap="onCloseAgePicker">取消</view>
+      <view class="picker-cancel" hover-class="is-pressed" bindtap="onCloseAgePicker">取消</view>
     </view>
   </view>
 

@@ -16,6 +16,8 @@ const Age = require('../../utils/age.js');
 const Format = require('../../utils/format.js');
 const SuccessFx = require('../../utils/success-fx.js');
 const Points = require('../../utils/points.js');
+const Chrome = require('../../utils/chrome.js');
+const Starfield = require('../../utils/starfield.js');
 
 /* 全局动画开关：真机若发现 CSS 关键帧异常，可置 false 回退到静态成功态 */
 const FX_ENABLED = true;
@@ -48,6 +50,7 @@ Page({
     this._windowWidth = win.width;
     this._windowHeight = win.height;
     this._stageRect = null;
+    Chrome.apply(Age.themeOf(age));
     this.setData({ theme: Age.themeOf(age) });
     this.loadLevel(query.id || firstLevelId());
   },
@@ -108,7 +111,7 @@ Page({
       showBadge: false,
       successText: '',
       fx: null,
-      stars: buildStars(26),
+      stars: Starfield.build(26),
       stageGrid: buildStageGrid(),
       craters: [],
       shakeClass: ''
@@ -427,30 +430,6 @@ function buildStageGrid() {
       key: 'gh' + i,
       cls: 'fx-grid-line fx-grid-h',
       style: 'top:' + (Math.round(i / 8 * 10000) / 100) + '%;'
-    });
-  }
-  return out;
-}
-
-/** 舞台环境星野：位置/大小/闪烁节奏都是确定的，每次进入同一关观感一致 */
-function buildStars(count) {
-  function rand(seed) {
-    const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453123;
-    return x - Math.floor(x);
-  }
-  const out = [];
-  for (let i = 0; i < count; i++) {
-    const x = 2 + rand(i * 7 + 1) * 96;
-    const y = 2 + rand(i * 11 + 2) * 96;
-    const size = 2 + Math.round(rand(i * 13 + 3) * 4);
-    const delay = Math.round(rand(i * 17 + 4) * 2600);
-    const dur = Math.round(1600 + rand(i * 19 + 5) * 2200);
-    out.push({
-      key: 'star-' + i,
-      style: 'left:' + (Math.round(x * 100) / 100) + '%;'
-        + 'top:' + (Math.round(y * 100) / 100) + '%;'
-        + 'width:' + size + 'rpx;height:' + size + 'rpx;'
-        + 'animation-delay:-' + delay + 'ms;animation-duration:' + dur + 'ms;'
     });
   }
   return out;

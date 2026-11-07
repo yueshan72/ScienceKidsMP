@@ -23,6 +23,11 @@ dist/
 build/
 tmp/
 .cache/
+__pycache__/
+*.pyc
+
+# ---- 本地会话日志（定时任务记录，不入库）----
+log/
 
 # ---- 本地文档工具（仅本机生成 Word / PDF 用，不入库）----
 build_docx.py

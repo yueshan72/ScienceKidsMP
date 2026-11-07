@@ -14,6 +14,8 @@ var DEMO = {
     {
       _id: 'c1', topicId: 'space', type: 'video',
       title: '火箭为什么能飞上天？', ageGroup: '3-6', duration: 10,
+      cover: '/assets/covers/rocket.jpg',
+      desc: '用气球和反冲力，看看火箭为什么能飞上天。',
       adProduct: true,
       /* 测试片源：由用户提供的 1 分钟视频切分为 10 秒片段。
          正式内容由团队替换；大文件请改用云存储 + CDN，避免超出小程序包体限制。 */
@@ -23,18 +25,24 @@ var DEMO = {
     {
       _id: 'c2', topicId: 'space', type: 'video',
       title: '月亮为什么会变形状？', ageGroup: '3-6', duration: 10,
+      cover: '/assets/covers/moon.jpg',
+      desc: '月亮为什么会变形状？其实和太阳照到的角度有关。',
       adProduct: false,
       mediaUrl: '/assets/videos/moon.mp4'
     },
     {
       _id: 'c3', topicId: 'space', type: 'video',
       title: '太空里为什么会飘起来？', ageGroup: '6-9', duration: 10,
+      cover: '/assets/covers/float.jpg',
+      desc: '在太空里，宇航员为什么会飘来飘去？',
       adProduct: true,
       mediaUrl: '/assets/videos/float.mp4'
     },
     {
       _id: 'c4', topicId: 'space', type: 'video',
       title: '火星上有没有外星人？', ageGroup: '6-9', duration: 10,
+      cover: '/assets/covers/mars.jpg',
+      desc: '火星上到底有没有生命？科学家还在寻找答案。',
       adProduct: false,
       mediaUrl: '/assets/videos/mars.mp4',
       /* 《需求文档》§9.2：争议性话题须标注「科学假设 / 未定论」 */
@@ -43,12 +51,16 @@ var DEMO = {
     {
       _id: 'c5', topicId: 'space', type: 'video',
       title: '黑洞是怎么形成的？', ageGroup: '9-12', duration: 168,
+      cover: '/assets/covers/blackhole.jpg',
+      desc: '黑洞是怎么形成的？它为什么连光都吞得下？',
       adProduct: false,
       disputed: true
     },
     {
       _id: 'c6', topicId: 'space', type: 'video',
       title: '第一宇宙速度是怎么算出来的？', ageGroup: '9-12', duration: 180,
+      cover: '/assets/covers/orbit.jpg',
+      desc: '想绕着地球转圈，需要多快的速度？',
       adProduct: false,
       levelId: 'rocket-1'
     }

@@ -13,6 +13,8 @@ const Age = require('../../utils/age.js');
 const Format = require('../../utils/format.js');
 const DateUtil = require('../../utils/date.js');
 const Points = require('../../utils/points.js');
+const Chrome = require('../../utils/chrome.js');
+const Starfield = require('../../utils/starfield.js');
 
 Page({
   data: {
@@ -28,7 +30,8 @@ Page({
     streak: 0,
     calendar: [],
     favorites: [],
-    consent: { granted: false, grantedAt: null, withdrawnAt: null }
+    consent: { granted: false, grantedAt: null, withdrawnAt: null },
+    bgStars: Starfield.build(48, { sizeScale: 1.5 })
   },
 
   /* 从关卡页返回、或首页改了年龄，都要刷新 */
@@ -39,6 +42,9 @@ Page({
   refresh() {
     const age = Local.getAgeGroup();
     app.globalData.ageGroup = age;
+
+    const theme = Age.themeOf(age);
+    Chrome.apply(theme, { tabBar: true });
 
     /* 关卡进度：以 demo-data 的关卡清单为准，合并本地进度 */
     const levels = Object.keys(DEMO.levels)
@@ -84,7 +90,7 @@ Page({
       .map(function (c) { return { _id: c._id, title: c.title }; });
 
     this.setData({
-      theme: Age.themeOf(age),
+      theme: theme,
       ageGroup: age,
       ageLabel: Age.labelOf(age),
       stats: {

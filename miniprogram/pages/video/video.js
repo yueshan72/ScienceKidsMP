@@ -12,6 +12,7 @@ const Local = require('../../utils/local-state.js');
 const Age = require('../../utils/age.js');
 const Format = require('../../utils/format.js');
 const LocalVideo = require('../../utils/local-video.js');
+const Chrome = require('../../utils/chrome.js');
 
 Page({
   data: {
@@ -36,9 +37,11 @@ Page({
     }
 
     const age = app.globalData.ageGroup || Local.getAgeGroup();
+    const theme = Age.themeOf(age);
+    Chrome.apply(theme);
 
     this.setData({
-      theme: Age.themeOf(age),
+      theme: theme,
       content: content,
       durationText: Format.fmtDuration(content.duration),
       mediaUrl: LocalVideo.toPlayableUrl(content.mediaUrl || ''),

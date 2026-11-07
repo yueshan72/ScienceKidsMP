@@ -8,6 +8,15 @@
 -->
 
 <view class="page theme-{{theme}}">
+  <!-- 动态星光背景：固定层，不挡点击 -->
+  <view class="page-bg">
+    <view class="page-nebula page-nebula-a"></view>
+    <view class="page-nebula page-nebula-b"></view>
+    <view class="page-stars">
+      <view tt:for="{{bgStars}}" tt:key="key" class="page-star" style="{{item.style}}"></view>
+    </view>
+  </view>
+
   <view class="container">
 
     <block tt:if="{{consentGranted}}">
@@ -18,8 +27,14 @@
         <text class="link" bindtap="onOpenAgePicker">修改</text>
       </view>
 
-      <!-- 主题入口 -->
-      <view class="topic-card" bindtap="onTapTopic">
+      <!-- 主题入口：深空渐变 + 星云 + 确定性星野 -->
+      <view class="topic-card" hover-class="is-pressed" bindtap="onTapTopic">
+        <view class="topic-nebula topic-nebula-a"></view>
+        <view class="topic-nebula topic-nebula-b"></view>
+        <view class="topic-stars">
+          <view tt:for="{{topicStars}}" tt:key="key"
+                class="topic-star" style="{{item.style}}"></view>
+        </view>
         <text class="topic-title">🚀 太空 / 宇宙</text>
         <text class="topic-sub">去动手试一试</text>
       </view>
@@ -34,22 +49,33 @@
               tt:for="{{contentList}}"
               tt:key="_id"
               data-id="{{item._id}}"
+              hover-class="is-pressed"
               bindtap="onTapVideo">
-          <text class="video-title">{{item.title}}</text>
+          <view class="video-main">
+            <!-- 左侧小封面 + 时长角标 -->
+            <view class="video-cover-wrap">
+              <image class="video-cover" src="{{item.cover}}" mode="aspectFill" lazy-load></image>
+              <text class="video-duration">{{item.durationText}}</text>
+            </view>
+
+            <!-- 右侧标题 / 简介 / 推广与收藏 -->
+            <view class="video-info">
+              <text class="video-title">{{item.title}}</text>
+              <text class="video-desc">{{item.desc}}</text>
+              <view class="video-foot">
+                <!-- 《需求文档》§9.1：带货内容必须显著标识 -->
+                <text tt:if="{{item.adProduct}}" class="ad-mark">推广</text>
+                <view class="video-foot-right">
+                  <!-- 收藏（《需求文档》4.2 / 4.5） -->
+                  <text class="fav" data-id="{{item._id}}" catchtap="onToggleFav">{{item.fav ? '★' : '☆'}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
 
           <!-- 《需求文档》§9.2：争议性话题须标注「科学假设 / 未定论」 -->
           <view tt:if="{{item.disputed}}" class="disclaimer">
             ⚠️ 这一集涉及科学假设，尚无定论，和孩子一起讨论看看。
-          </view>
-
-          <view class="video-foot">
-            <text>{{item.durationText}}</text>
-            <view class="video-foot-right">
-              <!-- 收藏（《需求文档》4.2 / 4.5） -->
-              <text class="fav" data-id="{{item._id}}" catchtap="onToggleFav">{{item.fav ? '★' : '☆'}}</text>
-              <!-- 《需求文档》§9.1：带货内容必须显著标识 -->
-              <text tt:if="{{item.adProduct}}" class="ad-mark">推广</text>
-            </view>
           </view>
         </view>
       </block>
@@ -70,7 +96,7 @@
         <text class="consent-block-icon">👨‍👩‍👧</text>
         <text class="consent-block-title">需要监护人同意</text>
         <text class="consent-block-text">本小程序面向儿童。请由监护人阅读隐私说明并同意后，再开始使用。</text>
-        <button class="btn consent-block-btn" bindtap="onReconsiderConsent">查看并同意</button>
+        <button class="btn consent-block-btn" hover-class="is-pressed" bindtap="onReconsiderConsent">查看并同意</button>
       </view>
     </block>
 
@@ -83,8 +109,8 @@
       <view class="consent-text">
         本小程序面向儿童。使用前请由监护人阅读并同意：我们只收集年龄段、闯关进度、徽章和打卡记录，用于分龄推荐与进度展示；不收集位置、联系方式等敏感信息；可随时在「我的」中更正年龄、删除数据或撤回同意。
       </view>
-      <button class="btn" bindtap="onAgreeConsent">同意并继续</button>
-      <view class="consent-decline" bindtap="onDeclineConsent">暂不同意</view>
+      <button class="btn" hover-class="is-pressed" bindtap="onAgreeConsent">同意并继续</button>
+      <view class="consent-decline" hover-class="is-pressed" bindtap="onDeclineConsent">暂不同意</view>
     </view>
   </view>
 
@@ -98,6 +124,7 @@
             tt:for="{{ageOptions}}"
             tt:key="value"
             data-age="{{item.value}}"
+            hover-class="is-pressed"
             bindtap="onPickAge">{{item.label}}</view>
     </view>
   </view>

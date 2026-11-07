@@ -214,7 +214,7 @@
         已改为「再试一次」，与交互状态绑定。
       -->
       <view tt:if="{{reward}}" class="level-actions">
-        <button class="btn" bindtap="onReset">再试一次</button>
+        <button class="btn" hover-class="is-pressed" bindtap="onReset">再试一次</button>
       </view>
 
     </block>

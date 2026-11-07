@@ -59,6 +59,18 @@ page {
   --shadow-card: 0 6rpx 20rpx rgba(0, 0, 0, .45);
   --radius-card: 16rpx;
 
+  /* 封面角标：跨主题固定（深色半透明底 + 白字） */
+  --c-overlay: rgba(0, 0, 0, .58);
+  --c-on-overlay: #FFFFFF;
+
+  /* 页面动态背景：默认深空 */
+  --c-page-star: rgba(255, 255, 255, .82);
+  --c-page-halo-a: rgba(140, 70, 255, .22);
+  --c-page-halo-b: rgba(40, 150, 255, .20);
+  --c-page-grad-a: #0B1026;
+  --c-page-grad-b: #101A3A;
+  --c-page-grad-c: #0B1026;
+
   /* 关卡场景底色（每关一套，随主题变） */
   --c-scene-rocket: #0E1638;
   --c-scene-meteor: #1A1A22;
@@ -154,6 +166,14 @@ page {
   --shadow-card: 0 6rpx 20rpx rgba(180, 140, 80, .16);
   --radius-card: 32rpx;
 
+  /* 暖色主题：极光渐变 + 大光斑（不再显示小星点） */
+  --c-page-star: rgba(255, 170, 80, .60); /* 保留兼容；该主题下星点隐藏 */
+  --c-page-halo-a: rgba(255, 150, 90, .40);
+  --c-page-halo-b: rgba(170, 130, 255, .30);
+  --c-page-grad-a: #FFF8EE;
+  --c-page-grad-b: #FFE9D6;
+  --c-page-grad-c: #F1E7FF;
+
   --c-scene-rocket: #DCEBFF;
   --c-scene-meteor: #E6E6EC;
   --c-scene-solar: #FFF1C9;
@@ -189,6 +209,18 @@ page {
   --shadow-card: 0 6rpx 20rpx rgba(0, 0, 0, .45);
   --radius-card: 16rpx;
 
+  /* 封面角标：跨主题固定（深色半透明底 + 白字） */
+  --c-overlay: rgba(0, 0, 0, .58);
+  --c-on-overlay: #FFFFFF;
+
+  /* 页面动态背景：默认深空 */
+  --c-page-star: rgba(255, 255, 255, .82);
+  --c-page-halo-a: rgba(140, 70, 255, .22);
+  --c-page-halo-b: rgba(40, 150, 255, .20);
+  --c-page-grad-a: #0B1026;
+  --c-page-grad-b: #101A3A;
+  --c-page-grad-c: #0B1026;
+
   --c-scene-rocket: #0E1638;
   --c-scene-meteor: #1A1A22;
   --c-scene-solar: #101A3A;
@@ -220,7 +252,154 @@ page {
 }
 
 .container {
+  position: relative;
+  z-index: 1;
   padding: var(--sp-4);
+}
+
+/* ==================== 页面动态背景 ====================
+ * 固定层：星云缓慢漂移 + 星点闪烁。
+ * pointer-events: none，不挡页面点击；容器 z-index 在它之上。
+ */
+.page-bg {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background-image: linear-gradient(160deg,
+    var(--c-page-grad-a) 0%,
+    var(--c-page-grad-b) 55%,
+    var(--c-page-grad-c) 100%);
+  background-size: 160% 160%;
+  animation: page-bg-shift 28s ease-in-out infinite alternate;
+}
+
+@keyframes page-bg-shift {
+  from { background-position: 0% 0%; }
+  to   { background-position: 100% 100%; }
+}
+
+.page-stars {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+}
+
+.page-star {
+  position: absolute;
+  border-radius: 50%;
+  background-color: var(--c-page-star);
+  box-shadow: 0 0 6rpx var(--c-page-star);
+  animation-name: page-star-twinkle;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes page-star-twinkle {
+  0%, 100% { opacity: .25; transform: scale(.85); }
+  50%      { opacity: .95; transform: scale(1.10); }
+}
+
+.page-nebula {
+  position: absolute;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.page-nebula-a {
+  left: -6%;
+  top: 8%;
+  box-shadow: 0 0 300rpx 140rpx var(--c-page-halo-a);
+  animation: page-nebula-a 22s ease-in-out infinite alternate;
+}
+
+.page-nebula-b {
+  right: -4%;
+  bottom: 6%;
+  box-shadow: 0 0 280rpx 130rpx var(--c-page-halo-b);
+  animation: page-nebula-b 26s ease-in-out infinite alternate;
+}
+
+/* 暖色主题：不显示小星点（浅色背景上会像落灰），改用大尺寸柔光斑 */
+.theme-warm .page-stars {
+  display: none;
+}
+
+.theme-warm .page-nebula-a {
+  left: -10%;
+  top: 4%;
+  box-shadow: 0 0 420rpx 210rpx var(--c-page-halo-a);
+}
+
+.theme-warm .page-nebula-b {
+  right: -8%;
+  bottom: 2%;
+  box-shadow: 0 0 380rpx 190rpx var(--c-page-halo-b);
+}
+
+@keyframes page-nebula-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(48rpx, -36rpx, 0) scale(1.12); }
+}
+
+@keyframes page-nebula-b {
+  from { transform: translate3d(0, 0, 0) scale(1.05); }
+  to   { transform: translate3d(-56rpx, -24rpx, 0) scale(.94); }
+}
+
+/* ==================== 按压 / 悬停反馈 ====================
+ * 真机没有鼠标悬停：用 hover-class="is-pressed" 做按下反馈；
+ * 开发者工具/桌面浏览器用 :hover 做鼠标悬停。 */
+.is-pressed {
+  opacity: .86;
+  transform: scale(.985);
+}
+
+.topic-card,
+.video-card,
+.level-item,
+.picker-item,
+.row,
+.fav-item,
+.btn,
+.action,
+.link {
+  transition: opacity .12s ease, transform .12s ease, background-color .12s ease;
+}
+
+@media (hover: hover) {
+  .topic-card:hover,
+  .video-card:hover,
+  .level-item:hover,
+  .picker-item:hover,
+  .row-link:hover,
+  .fav-item:hover {
+    opacity: .94;
+    transform: translateY(-2rpx);
+  }
+
+  .video-card:hover,
+  .level-item:hover,
+  .picker-item:hover,
+  .row-link:hover {
+    background-color: var(--c-surface-2);
+  }
+
+  .btn:hover,
+  .action:hover,
+  .consent-decline:hover,
+  .link:hover {
+    opacity: .84;
+  }
 }
 
 /* ==================== 共用组件 ==================== */

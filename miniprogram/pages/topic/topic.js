@@ -9,6 +9,8 @@ const Local = require('../../utils/local-state.js');
 const progress = require('../../utils/mock-progress.js');
 const Age = require('../../utils/age.js');
 const Format = require('../../utils/format.js');
+const Chrome = require('../../utils/chrome.js');
+const Starfield = require('../../utils/starfield.js');
 
 const TOPIC_ID = 'space';
 
@@ -19,14 +21,17 @@ Page({
     videoList: [],
     levelList: [],
     shopList: [],
-    doneCount: 0
+    doneCount: 0,
+    bgStars: Starfield.build(48, { sizeScale: 1.5 })
   },
 
   /* 用 onShow 而不是 onLoad：从关卡页返回时要刷新通关状态，
      否则刚通关回来还显示「去试试」。 */
   onShow() {
     const age = app.globalData.ageGroup || Local.getAgeGroup();
-    this.setData({ theme: Age.themeOf(age), ageGroup: age });
+    const theme = Age.themeOf(age);
+    Chrome.apply(theme);
+    this.setData({ theme: theme, ageGroup: age });
     this.refresh(age);
   },
 
