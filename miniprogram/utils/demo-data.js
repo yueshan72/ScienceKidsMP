@@ -10,6 +10,8 @@
  */
 
 var DEMO = {
+  /* 2026-11-08：六条内容均使用黑洞主题 10 秒测试片段（640×360）；
+     仅验证播放链路，正式素材按标题分别替换。 */
   contents: [
     {
       _id: 'c1', topicId: 'space', type: 'video',
@@ -50,19 +52,21 @@ var DEMO = {
     },
     {
       _id: 'c5', topicId: 'space', type: 'video',
-      title: '黑洞是怎么形成的？', ageGroup: '9-12', duration: 168,
+      title: '黑洞是怎么形成的？', ageGroup: '9-12', duration: 10,
       cover: '/assets/covers/blackhole.jpg',
       desc: '黑洞是怎么形成的？它为什么连光都吞得下？',
       adProduct: false,
-      disputed: true
+      disputed: true,
+      mediaUrl: '/assets/videos/blackhole.mp4'
     },
     {
       _id: 'c6', topicId: 'space', type: 'video',
-      title: '第一宇宙速度是怎么算出来的？', ageGroup: '9-12', duration: 180,
+      title: '第一宇宙速度是怎么算出来的？', ageGroup: '9-12', duration: 10,
       cover: '/assets/covers/orbit.jpg',
       desc: '想绕着地球转圈，需要多快的速度？',
       adProduct: false,
-      levelId: 'rocket-1'
+      levelId: 'rocket-1',
+      mediaUrl: '/assets/videos/orbit.mp4'
     }
   ],
 

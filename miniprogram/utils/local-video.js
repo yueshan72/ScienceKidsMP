@@ -19,7 +19,7 @@
  */
 'use strict';
 
-const VIDEO_VERSION = '2';
+const VIDEO_VERSION = '3';
 
 function fileSize(fs, filePath) {
   try {

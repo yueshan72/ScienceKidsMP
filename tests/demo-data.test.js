@@ -51,7 +51,10 @@ ok('封面文件不是空文件', tinyCovers.length === 0,
   tinyCovers.map(function (c) { return c.cover; }).join(', '));
 
 const withMedia = DEMO.contents.filter(function (c) { return !!c.mediaUrl; });
-const missingMedia = withMedia.filter(function (c) { return !fs.existsSync(fsPath(c.mediaUrl)); });
+const missingMedia = withMedia.filter(function (c) {
+  if (/^https:\/\//.test(c.mediaUrl)) return false; // 云端视频不检查本地文件
+  return !fs.existsSync(fsPath(c.mediaUrl));
+});
 ok('所有配了视频的内容文件存在', missingMedia.length === 0,
   missingMedia.map(function (c) { return c.mediaUrl; }).join(', '));
 
